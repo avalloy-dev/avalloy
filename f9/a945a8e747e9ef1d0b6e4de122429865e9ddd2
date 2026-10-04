@@ -1,0 +1,19 @@
+tests/Avalloy.Core.Tests/PreferencesFileModeTests.cs
+  s_5e266bd05f51f7::t_ebd829d2801cce 1-136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "f9a945a8e747e9ef1d0b6e4de122429865e9ddd2",
+  "prompts": {},
+  "sessions": {
+    "s_5e266bd05f51f7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "80fc9015-1546-4bf5-9e73-ee18994aa217",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "John Campion Jr <john@brightshore.io>"
+    }
+  }
+}
