@@ -60,6 +60,6 @@ jobs:
         run: npm install -g @rigsmith/shiprig@1.28.0
 
       - name: Version PR, or publish
-        uses: rigsmith/shiprig-action@86fbe9dc7894257412ae5aa6dc79601689db0f87 # v0.8.2
+        uses: rigsmith/shiprig-action@fcabd796842f61a76ab0146299e26898d1700c3c # v0.8.3
         with:
           publish-script: shiprig publish --yes
