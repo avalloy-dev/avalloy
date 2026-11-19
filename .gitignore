@@ -1,0 +1,17 @@
+bin/
+obj/
+*.user
+.vs/
+.idea/
+*.tmp
+
+# CI packs here to verify the packages still build (see .github/workflows/ci.yml).
+artifacts/
+
+# Release credentials are read from the environment by shiprig. Never in the tree: this repo is public.
+.env
+.env.local
+local-feed/
+
+# Release builds pack here; the packages go to the feed, never into git.
+dist/

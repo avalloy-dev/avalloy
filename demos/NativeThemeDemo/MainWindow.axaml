@@ -1,0 +1,108 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="NativeThemeDemo.MainWindow"
+        Width="780" Height="660"
+        Title="Native Theme Demo"
+        Background="{DynamicResource Surface.Canvas}">
+
+    <Grid Margin="22" RowDefinitions="Auto,Auto,*">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Spacing="3">
+            <TextBlock Classes="eyebrow accent" Text="AVALLOY · CORE + THEMES"/>
+            <TextBlock Classes="display" Text="Native Theme Demo"/>
+            <TextBlock Classes="secondary"
+                       Text="Plumbing and theming from Avalloy.Desktop."/>
+        </StackPanel>
+
+        <!-- Theme picker -->
+        <Border Grid.Row="1" Classes="card" Margin="0,18,0,0">
+            <StackPanel Spacing="12">
+                <TextBlock Classes="title" Text="Theme"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border x:Name="BtnLight" Classes="actionbtn" PointerPressed="OnPickLight">
+                        <TextBlock Text="Light"/>
+                    </Border>
+                    <Border x:Name="BtnDark" Classes="actionbtn" PointerPressed="OnPickDark">
+                        <TextBlock Text="Dark"/>
+                    </Border>
+                    <Border x:Name="BtnOcean" Classes="actionbtn" PointerPressed="OnPickOcean">
+                        <TextBlock Text="Ocean (custom)"/>
+                    </Border>
+                </StackPanel>
+                <CheckBox x:Name="FollowSystem" Content="Follow system appearance" Click="OnToggleFollow"/>
+                <TextBlock x:Name="StatusText" Classes="caption"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Token gallery -->
+        <ScrollViewer Grid.Row="2" Margin="0,18,0,0" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="16">
+                <!-- Type ramp -->
+                <Border Classes="card">
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="eyebrow" Text="TYPE"/>
+                        <TextBlock Classes="display" Text="Display — Georgia serif"/>
+                        <TextBlock Classes="title" Text="Title — section heading"/>
+                        <TextBlock Text="Body — default UI text on the card surface."/>
+                        <TextBlock Classes="secondary" Text="Secondary — supporting copy."/>
+                        <TextBlock Classes="muted" Text="Muted — de-emphasized."/>
+                        <TextBlock Classes="mono" Text="mono — 0123 ABCxyz () =>"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Surfaces -->
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="eyebrow" Text="SURFACES"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Width="120" Height="46" CornerRadius="{DynamicResource Radius.Card}"
+                                    Background="{DynamicResource Surface.Pane2}" BorderThickness="1"
+                                    BorderBrush="{DynamicResource Border.Soft}">
+                                <TextBlock Classes="caption" Text="Window" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Width="120" Height="46" CornerRadius="{DynamicResource Radius.Card}"
+                                    Background="{DynamicResource Surface.Raised2}" BorderThickness="1"
+                                    BorderBrush="{DynamicResource Border.Soft}">
+                                <TextBlock Classes="caption" Text="Raised" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <Border Width="120" Height="46" CornerRadius="{DynamicResource Radius.Card}"
+                                    Background="{DynamicResource Surface.Active3}" BorderThickness="1"
+                                    BorderBrush="{DynamicResource Border.Mid}">
+                                <TextBlock Classes="caption" Text="Selected" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Buttons + semantics -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="eyebrow" Text="CONTROLS"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Classes="actionbtn"><TextBlock Text="Neutral action"/></Border>
+                            <Border Classes="accentbtn"><TextBlock Text="Accent action" Foreground="#FFFFFF"/></Border>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="16">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="10" Height="10" Fill="{DynamicResource Ok}" VerticalAlignment="Center"/>
+                                <TextBlock Classes="caption" Text="Ok"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="10" Height="10" Fill="{DynamicResource Warn}" VerticalAlignment="Center"/>
+                                <TextBlock Classes="caption" Text="Warn"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="10" Height="10" Fill="{DynamicResource Danger}" VerticalAlignment="Center"/>
+                                <TextBlock Classes="caption" Text="Danger"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="10" Height="10" Fill="{DynamicResource Accent}" VerticalAlignment="Center"/>
+                                <TextBlock Classes="caption" Text="Accent"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

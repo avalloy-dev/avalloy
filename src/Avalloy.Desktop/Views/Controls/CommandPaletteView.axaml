@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:commands="using:Avalloy.Commands"
+             xmlns:icons="using:Avalloy.Icons"
+             xmlns:vc="using:Avalloy.Views.Controls"
+             x:Class="Avalloy.Views.Controls.CommandPaletteView"
+             x:DataType="commands:CommandPaletteViewModel"
+             x:CompileBindings="True">
+    <!-- Command palette — search by name; ↑↓ to move, Enter to run, wherever focus is in it (search box or,
+         tabbed into, the list); Esc to close (the host window's one overlay-dismiss handler owns Esc, same as
+         every other overlay). -->
+    <UserControl.Styles>
+        <!-- The default hint brush is a STYLE value, so a local HintForeground or an app's own style wins. -->
+        <Style Selector="vc|CommandPaletteView">
+            <Setter Property="HintForeground" Value="{DynamicResource Text.Ghost}"/>
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="MinHeight" Value="{Binding $parent[vc:CommandPaletteView].RowHeight}"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Margin" Value="8,1"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <!-- A row that cannot run is a DISABLED item, not just a dimmed one, so assistive technology reports
+             it unavailable and it cannot be clicked or selected. Its name reads label, detail, every hint and
+             the note — for a plain row, label and hint. -->
+        <Style Selector="ListBox#List > ListBoxItem" x:DataType="commands:PaletteItem">
+            <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+            <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+            <Setter Property="CornerRadius" Value="9"/>
+        </Style>
+        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+            <Setter Property="CornerRadius" Value="9"/>
+        </Style>
+    </UserControl.Styles>
+    <!-- At most 640 wide, centred; in a window narrower than that plus the margins it shrinks to the window
+         less 24px a side rather than spilling past both edges. -->
+    <vc:OverlayCard MaxWidth="640" ShowClose="False" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                    Margin="24,90,24,0">
+        <vc:OverlayCard.Body>
+            <Grid RowDefinitions="Auto,Auto,*">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="20,18,20,12">
+                    <icons:GlyphIcon Grid.Column="0" Glyph="Search" Size="16" Margin="0,0,11,0"
+                                     Foreground="{DynamicResource Text.Muted}" VerticalAlignment="Center"/>
+                    <TextBox Grid.Column="1" x:Name="Search" Classes="chromeless" FontSize="15"
+                             AutomationProperties.Name="{Binding Placeholder}"
+                             PlaceholderText="{Binding Placeholder}" Text="{Binding Query, Mode=TwoWay}"/>
+                </Grid>
+                <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource Seam}"/>
+                <!-- The list scrolls itself (no outer ScrollViewer): inside one it was given all the height it
+                     asked for, so it never scrolled, and its scroll-to-selection had nothing to move. Owning the
+                     viewport, it brings the selected row into view however the selection moved. -->
+                <ListBox Grid.Row="2" x:Name="List" MaxHeight="420"
+                         AutomationProperties.Name="{Binding $parent[vc:CommandPaletteView].ListName}"
+                         AutoScrollToSelectedItem="True"
+                         ItemsSource="{Binding Results}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                         Background="Transparent" BorderThickness="0" Padding="0,6"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="commands:PaletteItem">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" Background="Transparent" Cursor="Hand"
+                                  Opacity="{Binding RowOpacity}" Tapped="OnItemTapped">
+                                <icons:GlyphIcon Grid.Column="0" Glyph="{Binding Glyph}" Size="14" Margin="0,0,12,0"
+                                                 IsVisible="{Binding $parent[vc:CommandPaletteView].ShowGlyphs}"
+                                                 Foreground="{DynamicResource Text.Muted}" VerticalAlignment="Center"/>
+                                <!-- One text block, so a long label and its detail trim together. -->
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource Text.Primary}" TextTrimming="CharacterEllipsis">
+                                    <Run Text="{Binding Label}"/><Run Text="{Binding DetailSuffix}" FontSize="11"
+                                                                      Foreground="{DynamicResource Text.Ghost}"/>
+                                </TextBlock>
+                                <TextBlock Grid.Column="2" Text="{Binding Note}" FontSize="11" Margin="12,0,0,0"
+                                           IsVisible="{Binding Note, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                           Foreground="{DynamicResource Text.Muted}" VerticalAlignment="Center"/>
+                                <!-- Its own gap, like the note's, so the label's ellipsis never touches the
+                                     first key; hidden when empty so a row without hints keeps the width. -->
+                                <TextBlock Grid.Column="3" Text="{Binding HintText}" ToolTip.Tip="{Binding HintTip}"
+                                           Margin="12,0,0,0"
+                                           IsVisible="{Binding HintText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                           Classes="mono" FontSize="{Binding $parent[vc:CommandPaletteView].HintFontSize}"
+                                           Foreground="{Binding $parent[vc:CommandPaletteView].HintForeground}"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </vc:OverlayCard.Body>
+    </vc:OverlayCard>
+</UserControl>

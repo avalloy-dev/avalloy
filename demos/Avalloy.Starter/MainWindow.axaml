@@ -1,0 +1,241 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:alloy="using:Avalloy.Views.Controls"
+        xmlns:icons="using:Avalloy.Icons"
+        xmlns:ap="using:Avalloy.AttachedProperties"
+        xmlns:alloytb="using:Avalloy.Controls.TitleBar"
+        xmlns:th="using:Avalloy.Themes"
+        xmlns:shell="using:Avalloy.Starter.Shell"
+        x:Class="Avalloy.Starter.MainWindow"
+        x:DataType="shell:ShellViewModel"
+        x:CompileBindings="True"
+        Title="Avalloy Starter"
+        MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Surface.Window}"
+        ExtendClientAreaToDecorationsHint="True"
+        ap:MacOSTitleBar.IsThick="True">
+
+    <Window.Styles>
+        <!-- Section header dwell reveals the font stepper (the shared HoverIntent → IsRevealed map). -->
+        <Style Selector="Border.demoband.reveal alloy|FontSizeStepper">
+            <Setter Property="IsRevealed" Value="True"/>
+        </Style>
+    </Window.Styles>
+
+    <!-- Root: the shell + a modal overlay layer above it (scrim + centered card). -->
+    <Panel>
+
+    <!-- Shell: [titlebar 44][ sidebar | content ] on the Surface.Window gutter. -->
+    <Grid RowDefinitions="44,*">
+
+        <!-- Unified draggable title bar (Avalloy): drag + double-click maximize + the measured
+             caption-button inset on Windows/Linux; macOS traffic lights overlay the far left. -->
+        <alloytb:AlloyTitleBar Grid.Row="0" MinHeight="44" Padding="0"
+                           Background="{DynamicResource Surface.Window}">
+            <Panel>
+                <TextBlock Text="Avalloy Starter" Classes="secondary"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right"
+                            VerticalAlignment="Center" Margin="0,0,14,0">
+                    <Button Classes="bare" Tapped="OnToggleTheme" ToolTip.Tip="Toggle light/dark · ⌘T">
+                        <icons:GlyphIcon Glyph="moon" Size="15" Foreground="{DynamicResource Text.Secondary}"/>
+                    </Button>
+                </StackPanel>
+            </Panel>
+        </alloytb:AlloyTitleBar>
+
+        <!-- Body: panes float on the gutter. Column 0 is the RESERVED sidebar column —
+             Avalloy's SidebarDockController drives its width (rail ↔ persisted docked width,
+             with the dock morph) and owns the edge pull below. -->
+        <Grid Grid.Row="1" x:Name="BodyGrid" Margin="10,0,10,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="76"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── Siderail: rail ↔ docked via ⌘B / the drawer pull (tap toggles; drag resizes when
+                 docked). Rows use the shared .ddrow vocabulary; labels fold away with the rail. ── -->
+            <Border x:Name="Sidebar" Grid.Column="0"
+                    Background="{DynamicResource Surface.Pane}" CornerRadius="{DynamicResource Radius.Pane}">
+                <Grid RowDefinitions="Auto,*,Auto" Margin="10,12">
+                    <StackPanel Grid.Row="0" Spacing="2">
+                        <Border Classes="ddrow selected">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <icons:GlyphIcon Glyph="Home" Size="16" VerticalAlignment="Center"
+                                                 Foreground="{DynamicResource Text.Secondary}"/>
+                                <TextBlock Grid.Column="1" Text="Home" Margin="11,0,0,0"
+                                           IsVisible="{Binding SidebarPinned}"/>
+                            </Grid>
+                        </Border>
+                        <Border Classes="ddrow">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <icons:GlyphIcon Glyph="Files" Size="16" VerticalAlignment="Center"
+                                                 Foreground="{DynamicResource Text.Secondary}"/>
+                                <TextBlock Grid.Column="1" Text="Library" Margin="11,0,0,0"
+                                           IsVisible="{Binding SidebarPinned}"/>
+                            </Grid>
+                        </Border>
+                        <Border Classes="ddrow">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <icons:GlyphIcon Glyph="Search" Size="16" VerticalAlignment="Center"
+                                                 Foreground="{DynamicResource Text.Secondary}"/>
+                                <TextBlock Grid.Column="1" Text="Search" Margin="11,0,0,0"
+                                           IsVisible="{Binding SidebarPinned}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                    <Border Grid.Row="2" Classes="ddrow" Tapped="OnOpenSettings">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <icons:GlyphIcon Glyph="Settings" Size="16" VerticalAlignment="Center"
+                                             Foreground="{DynamicResource Text.Secondary}"/>
+                            <TextBlock Grid.Column="1" Text="Settings" Margin="11,0,0,0"
+                                       IsVisible="{Binding SidebarPinned}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ── Content pane. ── -->
+            <Border Grid.Column="1" Margin="10,0,0,0"
+                    Background="{DynamicResource Surface.Pane2}" CornerRadius="{DynamicResource Radius.Pane}">
+                <ScrollViewer>
+                    <StackPanel MaxWidth="620" Margin="34,26" Spacing="26" HorizontalAlignment="Left">
+
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="eyebrow" Text="AVALLOY STARTER"/>
+                            <TextBlock Classes="title" Text="The siderail shell, ready to grow"/>
+                            <TextBlock Classes="secondary" TextWrapping="Wrap"
+                                       Text="Everything on this page is Avalloy: the title bar, the rail, the theme engine on the neutral templates, the command chords (⌘B pin · ⌘T theme), and the controls below. Replace this panel with your first real screen."/>
+                        </StackPanel>
+
+                        <!-- Fields -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Classes="eyebrow" Text="FIELDS"/>
+                            <alloy:AlloyTextBox Label="PROJECT NAME" PlaceholderText="my-next-thing" ShowClear="True"
+                                            Helper="Lowercase, dashes for spaces." MaxWidth="340" HorizontalAlignment="Left"/>
+                            <alloy:AlloyTextBox Classes="search sm" LeadingGlyph="Search" PlaceholderText="Search anything…"
+                                            ShowClear="True" MaxWidth="260" HorizontalAlignment="Left"/>
+                        </StackPanel>
+
+                        <!-- Select + dropdown -->
+                        <StackPanel Spacing="12">
+                            <TextBlock Classes="eyebrow" Text="PICKERS"/>
+                            <alloy:AlloySelect ItemsSource="{Binding Options}" SelectedItem="{Binding SelectedOption}"
+                                           LabelPath="Label" DescriptionPath="Description"
+                                           PlaceholderText="Pick a profile…" PopoverWidth="300"/>
+                            <alloy:AlloyDropDown IsOpen="{Binding ExportMenuOpen}" PopoverWidth="240">
+                                <alloy:AlloyDropDown.Trigger>
+                                    <Border Classes="actionbtn"><TextBlock Text="Export ▾"/></Border>
+                                </alloy:AlloyDropDown.Trigger>
+                                <StackPanel Margin="6">
+                                    <TextBlock Classes="ddsection" Text="DESTINATION"/>
+                                    <Border Classes="ddrow" Tapped="OnExportPick"><TextBlock Text="Copy to clipboard"/></Border>
+                                    <Border Classes="ddrow" Tapped="OnExportPick"><TextBlock Text="Save as file…"/></Border>
+                                    <Border Classes="dddivider"/>
+                                    <Border Classes="ddrow danger" Tapped="OnExportPick"><TextBlock Text="Discard draft"/></Border>
+                                </StackPanel>
+                            </alloy:AlloyDropDown>
+                        </StackPanel>
+
+                        <!-- Chrome bits -->
+                        <StackPanel Spacing="12">
+                            <Border Classes="demoband" ap:HoverIntent.RevealClass="reveal" Background="Transparent">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <TextBlock Classes="eyebrow" Text="CHROME (dwell here for the −/＋)" VerticalAlignment="Center"/>
+                                    <alloy:FontSizeStepper Grid.Column="2" TipNoun="sample text"/>
+                                </Grid>
+                            </Border>
+                            <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                                <alloy:BusySpinner/>
+                                <TextBlock Classes="secondary" Text="BusySpinner — keeps turning through UI-thread bursts" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                <icons:FileIcon Ext="ts" Size="16"/>
+                                <icons:FileIcon Ext="py" Size="16"/>
+                                <icons:FileIcon Ext="rs" Size="16"/>
+                                <icons:FileIcon Ext="md" Size="16"/>
+                                <icons:FileIcon Ext="json" Size="16"/>
+                                <TextBlock Classes="secondary" Text="FileIcon badges" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Classes="muted" Text="{Binding LaunchedAgo, StringFormat='Session started {0}.'}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Drawer pull ON the seam: SidebarDockController's passive seam watcher fades it in
+                 after a dwell (Opacity + hit-test — never IsVisible); tap toggles the pin, and a
+                 ≥3px drag resizes the docked width. MUST stay the LAST child of the body grid. -->
+            <alloy:DrawerPull Grid.Column="0" x:Name="EdgePullTab" Edge="Left"
+                            PointsLeft="{Binding SidebarPinned}"
+                            HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,-9,0"
+                            Opacity="0" IsHitTestVisible="False">
+                <alloy:DrawerPull.Transitions>
+                    <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.12"/></Transitions>
+                </alloy:DrawerPull.Transitions>
+            </alloy:DrawerPull>
+        </Grid>
+    </Grid>
+
+    <!-- ── Overlay layer: Settings (⌘,) — Avalloy's PreferencesOverlay on the VM's two-section
+         PrefsNavigator. Scrim tap, the shell's ✕ (via OverlayCard.CloseRequested → code-behind),
+         and Esc all dismiss. Section bodies bind the inherited ShellViewModel. ── -->
+    <Panel IsVisible="{Binding SettingsOpen}">
+        <Border Background="{DynamicResource Scrim}" Tapped="OnScrimTapped"/>
+        <alloy:PreferencesOverlay Navigator="{Binding SettingsNav}" VersionLine="{Binding VersionLine}"
+                                CardWidth="720" CardHeight="500"
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
+            <alloy:PreferencesOverlay.Sections>
+            <StackPanel>
+                <!-- GENERAL -->
+                <StackPanel IsVisible="{Binding SettingsNav.Selected,
+                                        Converter={x:Static th:Converters.StringEquals}, ConverterParameter=General}">
+                    <TextBlock Classes="eyebrow" Text="SIDEBAR"/>
+                    <Grid Classes="prefrow" ColumnDefinitions="*,Auto" Margin="0,6,0,0"
+                          ToolTip.Tip="Docked wide vs the narrow rail (⌘B, or the drawer pull on the seam).">
+                        <TextBlock Grid.Column="0" Classes="preflabel" Text="Pin sidebar open"/>
+                        <ToggleButton Grid.Column="1" Classes="pilltoggle" VerticalAlignment="Center"
+                                      IsChecked="{Binding SidebarPinned, Mode=TwoWay}"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- APPEARANCE -->
+                <StackPanel IsVisible="{Binding SettingsNav.Selected,
+                                        Converter={x:Static th:Converters.StringEquals}, ConverterParameter=Appearance}">
+                    <TextBlock Classes="eyebrow" Text="APPEARANCE"/>
+                    <Grid Classes="prefrow" ColumnDefinitions="*,Auto" Margin="0,6,0,0"
+                          ToolTip.Tip="Light by day, dark by night — the OS decides.">
+                        <TextBlock Grid.Column="0" Classes="preflabel" Text="Follow system appearance"/>
+                        <ToggleButton Grid.Column="1" Classes="pilltoggle" VerticalAlignment="Center"
+                                      IsChecked="{Binding FollowSystem, Mode=OneWay}"
+                                      Command="{Binding ToggleFollowSystemCommand}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,10,0,0">
+                        <Button Grid.Column="0" Classes="bare" HorizontalAlignment="Stretch"
+                                Command="{Binding PickVariantCommand}" CommandParameter="Light">
+                            <Border Classes="pillcard" Classes.selected="{Binding LightSelected}" HorizontalAlignment="Stretch">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Classes="pilltitle" Text="Light"/>
+                                    <TextBlock Classes="pilldetail" Text="The neutral light template."/>
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                        <Button Grid.Column="1" Classes="bare" HorizontalAlignment="Stretch"
+                                Command="{Binding PickVariantCommand}" CommandParameter="Dark">
+                            <Border Classes="pillcard" Classes.selected="{Binding DarkSelected}" HorizontalAlignment="Stretch">
+                                <StackPanel Spacing="3">
+                                    <TextBlock Classes="pilltitle" Text="Dark"/>
+                                    <TextBlock Classes="pilldetail" Text="The neutral dark template."/>
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+            </alloy:PreferencesOverlay.Sections>
+        </alloy:PreferencesOverlay>
+    </Panel>
+    </Panel>
+</Window>

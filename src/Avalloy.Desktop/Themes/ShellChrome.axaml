@@ -1,0 +1,43 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    Shared chrome for ShellWindow titlebars. Apps include this once
+    (StyleInclude avares://Avalloy.Desktop/Themes/ShellChrome.axaml) and then:
+
+        <... Margin="{StaticResource ShellTitleBarContentInset}" />
+
+    The `shell` class collapses the caption-button + sizing boilerplate (native
+    chrome / macOS traffic lights handle the buttons), and the inset resource
+    keeps the macOS traffic-light measurement in Avalloy rather than hardcoded
+    in every app.
+  -->
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <!-- Left-inset for titlebar content so it clears the native window controls:
+           macOS traffic lights (thick unified titlebar) need ~100px of room; the
+           other platforms put their controls on the right, so a small gutter is
+           enough on the left. -->
+      <OnPlatform x:Key="ShellTitleBarContentInset" x:TypeArguments="Thickness"
+                  Default="14,0,0,0" macOS="100,0,0,0"/>
+
+      <!-- Shared toolbar-icon tint for shell chrome. A Color (not a Brush) because
+           svg:Svg.CurrentColor needs a Color, and the theme exposes only Brush
+           resources. Lives here so every shell consumer — the host app's toolbars
+           and the Avalloy preview window — resolves one theme-aware value
+           without depending on the app. Avalonia auto-swaps Dark/Light on
+           RequestedThemeVariant change. -->
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="ToolbarIconColor">#C8C8D2</Color>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="ToolbarIconColor">#4A4A55</Color>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+
+</Styles>

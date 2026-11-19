@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- avares://Avalloy.Starter/... -->
+    <AssemblyName>Avalloy.Starter</AssemblyName>
+    <RootNamespace>Avalloy.Starter</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The siderail starter: copy this project, rename it, and grow your app from it.
+       It exercises the whole native-lane shell kit — AvalloyApp bootstrap, AlloyTitleBar
+       + extended client area, persisted window geometry + prefs, NativeThemeController on
+       the neutral templates, the command stack (chords via KeyboardDispatcher), and the
+       Alloy control layer (AlloyTextBox/AlloySelect/AlloyDropDown/DrawerPull/FontSizeStepper/
+       BusySpinner/FileIcon) on the v7 token grammar. Nothing else in the graph. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Desktop\Avalloy.Desktop.csproj" />
+  </ItemGroup>
+</Project>

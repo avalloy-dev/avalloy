@@ -1,0 +1,8 @@
+{
+  "name": "compact",
+  "displayName": "Compact",
+  "kind": "density",
+  "tokens": {
+    "AlloyUiDensity": "Compact"
+  }
+}

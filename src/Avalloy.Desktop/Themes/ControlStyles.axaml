@@ -1,0 +1,417 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:th="using:Avalloy.Themes"
+        xmlns:icons="using:Avalloy.Icons"
+        xmlns:alloyc="using:Avalloy.Views.Controls">
+    <!-- Generic, token-driven control style-classes (brand-neutral). Apply via
+         Classes="card" etc. Everything resolves via DynamicResource so
+         themes/variants repaint live. -->
+
+    <!-- Surface card: raised panel with soft border + rounded corners. -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Border.Soft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}"/>
+        <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <!-- Modal overlay / dialog shell: a window-surface card with a soft border, large radius, and popover shadow.
+         Apply to an overlay's outer Border (the scrim + centering + Escape host is the app's). Set Width/Height
+         per overlay; override CornerRadius for compact variants. -->
+    <Style Selector="Border.overlaycard">
+        <Setter Property="Background" Value="{DynamicResource Surface.Pane2}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Border.Soft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Popover}"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <!-- The ✕ close button used by OverlayCard: a bare, keyboard-accessible button with a subtle hover. -->
+    <Style Selector="Button.overlayclose">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Button.overlayclose:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+
+    <!-- Hover-lift MODIFIER: adds a pointer-over surface lift to whatever Border it's applied to, WITHOUT
+         imposing a background or corner radius (so the host element keeps its own). A composable behavior,
+         not a turnkey tile — apply on top of any surface. -->
+    <Style Selector="Border.hoverable">
+        <Setter Property="Transitions">
+            <Transitions><BrushTransition Property="Background" Duration="0:0:0.12"/></Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Border.hoverable:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+
+    <!-- Neutral action button (Border-as-button): card surface, mid border, hover lift. -->
+    <Style Selector="Border.actionbtn">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Border.Mid}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
+        <Setter Property="Padding" Value="13,6"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.12"/>
+                <BrushTransition Property="BorderBrush" Duration="0:0:0.12"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Border.actionbtn:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Border.Strong}"/>
+    </Style>
+
+    <!-- Accent (primary) button. -->
+    <Style Selector="Border.accentbtn">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
+        <Setter Property="Padding" Value="13,6"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
+    <!-- Chromeless button: strips Fluent's chrome so a styled Border child IS the button surface —
+         the accessible way to make a card/chip/row clickable (focus, Space/Enter, automation peer)
+         without hand-rolling Border+Tapped. -->
+    <Style Selector="Button.bare">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+    </Style>
+    <Style Selector="Button.bare /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="Button.bare:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button.bare:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <!-- Chromeless TextBox: the framing Border is the host's (a card, a composer shell) so the input
+         blends in — no background, border, or padding of its own. -->
+    <Style Selector="TextBox.chromeless">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Accent}"/>
+    </Style>
+    <Style Selector="TextBox.chromeless /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <!-- Pill on/off toggle, built on the native ToggleButton primitive (focus ring + Space/Enter + on/off
+         automation peer for free) rather than a hand-rolled Border. Bind IsChecked (OneWay) for state and
+         Command for the action when the command flips+persists (OneWay avoids a double-toggle). -->
+    <Style Selector="ToggleButton.pilltoggle">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Width="36" Height="20" CornerRadius="10"
+                        Background="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static th:Converters.ToggleTrack}}">
+                    <Ellipse Width="16" Height="16" Fill="White" Margin="2,0"
+                             HorizontalAlignment="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static th:Converters.ToggleThumbAlign}}"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Default radio: accent ring + dot instead of Fluent's system-blue (ring 15·2px, dot 7; muted ring
+         until checked). `.seg2` below replaces the template entirely for segmented groups. -->
+    <Style Selector="RadioButton">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="11" Background="Transparent">
+                    <Border x:Name="ring" Width="15" Height="15" CornerRadius="8" BorderThickness="2"
+                            BorderBrush="{DynamicResource Border.Strong}" VerticalAlignment="Center">
+                        <Ellipse x:Name="dot" Width="7" Height="7" Fill="{DynamicResource Accent}" IsVisible="False"/>
+                    </Border>
+                    <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RadioButton:checked /template/ Border#ring">
+        <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+    </Style>
+    <Style Selector="RadioButton:checked /template/ Ellipse#dot">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- Segmented control on the native RadioButton primitive (single-select group → arrow-key nav, Space
+         select, radio on/off automation). Bordered, clipped container (Surface.Raised + Border.Mid, r7) with
+         segments flush inside; selected = Surface.Active3 fill + Ink text; a Border.Mid divider before the
+         2nd+ segment. Wrap a group in Border.seg2group, put the options in one GroupName, bind IsChecked
+         two-way via Converters.StringMatch (ConverterParameter = the option). -->
+    <Style Selector="Border.seg2group">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Border.Mid}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="RadioButton.seg2">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="pill" Padding="9,5" Background="Transparent"
+                        BorderBrush="{DynamicResource Border.Mid}" BorderThickness="0">
+                    <ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RadioButton.seg2:nth-child(n+2) /template/ Border#pill">
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+    </Style>
+    <Style Selector="RadioButton.seg2:checked /template/ Border#pill">
+        <Setter Property="Background" Value="{DynamicResource Surface.Active3}"/>
+    </Style>
+    <Style Selector="RadioButton.seg2:checked">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+    </Style>
+
+    <!-- Two-state segmented item (Border-based variant, for non-radio hosts). -->
+    <Style Selector="Border.seg2">
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="13,5"/>
+    </Style>
+    <Style Selector="Border.seg2 > TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector="Border.seg2.on">
+        <Setter Property="Background" Value="{DynamicResource Surface.Active3}"/>
+    </Style>
+    <Style Selector="Border.seg2.on > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    <!-- Accent-filled segmented "on" variant. -->
+    <Style Selector="Border.seg2.onaccent">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+    </Style>
+    <Style Selector="Border.seg2.onaccent > TextBlock">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- ═══ v7 popover chrome + dropdown-row vocabulary (token-driven, brand-neutral). ═══ -->
+
+    <!-- Canonical anchored-popover frame (v7 Menu treatment): every trigger-anchored dropdown uses this
+         chrome — Menu.Bg (a value step above the pane), Menu.Shadow, Radius.Menu. Menus are BORDERLESS
+         on dark (Menu.Edge = Transparent — shadow + surface step carry the elevation); light themes rim
+         with a Seam-weight Menu.Edge. The painted Menu.Shadow only works when the app runs OVERLAY
+         popups (AvaloniaNativePlatformOptions.OverlayPopups) — in separate native popup windows a
+         BoxShadow clips at the window bounds. A hand-rolled Popup should take this class instead of
+         inlining chrome. Full-bleed content bars need an inner CornerRadius="11" ClipToBounds Border.
+         Distinct from .overlaycard (modal card). -->
+    <Style Selector="Border.popoverframe">
+        <Setter Property="Background" Value="{DynamicResource Menu.Bg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Menu.Edge}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Edge.Hairline}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Menu}"/>
+        <Setter Property="BoxShadow" Value="{DynamicResource Menu.Shadow}"/>
+    </Style>
+
+    <!-- Popover CARD — the richer popup-hosted card: card chrome rather than menu chrome (Edge.Card rim,
+         r16 per "card/menu 12–16", Shadow.Popover). Same OverlayPopups caveat as .popoverframe. Pair with
+         Margin="{StaticResource Menu.ShadowRoom}" at the call site so the BoxShadow gets layout room.
+         Avalonia (12.1.3+) ignores a popup child's margin when placing it, so the popup's offsets are
+         the visible gap — never compensate them for the room. -->
+    <Style Selector="Border.popovercard">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Edge.Card}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Edge.Hairline}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Popover}"/>
+    </Style>
+
+    <!-- ── Dropdown rows — the shared vocabulary for hand-built action menus / palettes on AlloyDropDown
+         (AlloySelect's ComboBoxItems restyle the same skeleton in AlloyControls.axaml). Row: Radius.Row ·
+         10,8 padding · ≈34 high · hover Surface.Raised2. No hover BrushTransition: Avalonia's
+         Transparent is zero-alpha WHITE, so animating Transparent → a fill flashes white
+         mid-interpolation. Rows snap. ── -->
+    <Style Selector="Border.ddrow">
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Row}"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="MinHeight" Value="34"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.ddrow:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+    <!-- Current value in a hand-built single-select menu (pairs with a trailing Ok check on the row). -->
+    <Style Selector="Border.ddrow.selected">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+
+    <!-- Content-agnostic canonical menu-row hover — same Surface.Raised2 hover/selected as .ddrow but
+         WITHOUT .ddrow's font/padding opinions, so bespoke rich rows keep their own layout/typography
+         while hovering exactly like the canonical dropdown. Rows snap (same Transparent-flash reason). -->
+    <Style Selector="Border.menuhover">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.menuhover:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+    <Style Selector="Border.menuhover.selected">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+    <Style Selector="Border.ddrow TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- Danger rows: ink + icon in Danger; hover = Danger.Wash instead of the neutral fill. -->
+    <Style Selector="Border.ddrow.danger TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+    </Style>
+    <Style Selector="Border.ddrow.danger icons|GlyphIcon">
+        <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+    </Style>
+    <Style Selector="Border.ddrow.danger:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Danger.Wash}"/>
+    </Style>
+    <!-- Section header (not a row): 9/600 uppercase tracked caption. Text supplied UPPERCASE by the caller. -->
+    <Style Selector="TextBlock.ddsection">
+        <Setter Property="FontSize" Value="9"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LetterSpacing" Value="0.54"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="Margin" Value="10,8,10,5"/>
+    </Style>
+    <!-- Trailing shortcut chip text (⌘R). -->
+    <Style Selector="TextBlock.ddshortcut">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <!-- In-menu divider. -->
+    <Style Selector="Border.dddivider">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Divider}"/>
+        <Setter Property="Margin" Value="8,5"/>
+    </Style>
+
+    <!-- AlloySelect :mono rows (branch/ref/path lists) — lives HERE, not in the ControlTheme: a ControlTheme
+         may not contain descendant selectors (throws at theme application as a silent binding error). -->
+    <Style Selector="alloyc|AlloySelect:mono ComboBoxItem">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+    </Style>
+
+    <!-- ═══ Preferences vocabulary (PreferencesOverlay + section bodies). ═══ -->
+
+    <!-- Rail section row: quiet at rest, Surface.Raised2 pill when selected. -->
+    <Style Selector="Border.prefnav">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.ButtonLg}"/>
+        <Setter Property="Padding" Value="13,0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.prefnav:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Hover}"/>
+    </Style>
+    <Style Selector="Border.prefnav.on">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+    <Style Selector="Border.prefnav TextBlock">
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.prefnav.on TextBlock">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+    </Style>
+
+    <!-- Single-line setting row: label left, control right (descriptions ride as tooltips). -->
+    <Style Selector="Grid.prefrow">
+        <Setter Property="MinHeight" Value="42"/>
+    </Style>
+    <Style Selector="Grid.prefrow > TextBlock.preflabel">
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Quiet dropdown trigger: current value + ▾ in the v7 combo treatment — container fill +
+         Field.Hairline so it never reads as a plain label. -->
+    <Style Selector="Border.prefval">
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Background" Value="{DynamicResource Combo.Bg}"/>
+        <Setter Property="BoxShadow" Value="{DynamicResource Field.Rest.Shadow}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.prefval:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+    </Style>
+    <!-- Open menu = the combo focus ring on the trigger (AlloyDropDown-hosted rows). -->
+    <Style Selector="alloyc|AlloyDropDown:dropdownopen Border.prefval">
+        <Setter Property="BoxShadow" Value="{DynamicResource Field.Focus.Shadow}"/>
+    </Style>
+
+    <!-- Selectable pill card: a title + one-line detail; selected = accent-tint fill (no ring). -->
+    <Style Selector="Border.pillcard">
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Padding" Value="13,10"/>
+        <Setter Property="Background" Value="{DynamicResource Combo.Bg}"/>
+        <Setter Property="BoxShadow" Value="{DynamicResource Field.Rest.Shadow}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.pillcard:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Surface.Hover}"/>
+    </Style>
+    <Style Selector="Border.pillcard.selected">
+        <Setter Property="Background" Value="{DynamicResource Accent.Tint}"/>
+    </Style>
+    <Style Selector="Border.pillcard TextBlock.pilltitle">
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+    </Style>
+    <Style Selector="Border.pillcard TextBlock.pilldetail">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Quiet}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+</Styles>

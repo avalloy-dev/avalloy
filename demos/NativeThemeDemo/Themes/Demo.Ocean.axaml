@@ -1,0 +1,48 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- App-supplied custom DARK theme (teal "Ocean"). Same contract as Avalloy.Desktop's
+         Template.Dark.axaml, rebranded — demonstrates an app extending the theme catalog
+         with its own palette without touching the library. -->
+
+    <!-- v7 surface ladder (canvas←backdrop, pane←sidebar, pane2←window, raised←card, raised2←raised, active3←selected). -->
+    <Color x:Key="Surface.Canvas.Color">#0B1A1F</Color>
+    <Color x:Key="Surface.Pane.Color">#0C1E23</Color>
+    <Color x:Key="Surface.Pane2.Color">#0F2329</Color>
+    <Color x:Key="Surface.Raised.Color">#143138</Color>
+    <Color x:Key="Surface.Raised2.Color">#1A3D45</Color>
+    <Color x:Key="Surface.Active3.Color">#1F4E54</Color>
+    <SolidColorBrush x:Key="Surface.Canvas" Color="{StaticResource Surface.Canvas.Color}"/>
+    <SolidColorBrush x:Key="Surface.Pane" Color="{StaticResource Surface.Pane.Color}"/>
+    <SolidColorBrush x:Key="Surface.Pane2" Color="{StaticResource Surface.Pane2.Color}"/>
+    <SolidColorBrush x:Key="Surface.Raised" Color="{StaticResource Surface.Raised.Color}"/>
+    <SolidColorBrush x:Key="Surface.Raised2" Color="{StaticResource Surface.Raised2.Color}"/>
+    <SolidColorBrush x:Key="Surface.Active3" Color="{StaticResource Surface.Active3.Color}"/>
+
+    <Color x:Key="Border.Strong.Color">#3A6068</Color>
+    <Color x:Key="Border.Mid.Color">#2A4A50</Color>
+    <Color x:Key="Border.Soft.Color">#20393E</Color>
+    <Color x:Key="Border.Faint.Color">#192E32</Color>
+    <SolidColorBrush x:Key="Border.Strong" Color="{StaticResource Border.Strong.Color}"/>
+    <SolidColorBrush x:Key="Border.Mid" Color="{StaticResource Border.Mid.Color}"/>
+    <SolidColorBrush x:Key="Border.Soft" Color="{StaticResource Border.Soft.Color}"/>
+    <SolidColorBrush x:Key="Border.Faint" Color="{StaticResource Border.Faint.Color}"/>
+
+    <!-- v7 text ladder (primary←ink, secondary←muted, muted←soft, ghost←faint; old secondary rung folded out). -->
+    <Color x:Key="Text.Primary.Color">#E6F4F1</Color>
+    <Color x:Key="Text.Secondary.Color">#8FB0AC</Color>
+    <Color x:Key="Text.Muted.Color">#6E908C</Color>
+    <Color x:Key="Text.Ghost.Color">#506F6B</Color>
+    <SolidColorBrush x:Key="Text.Primary" Color="{StaticResource Text.Primary.Color}"/>
+    <SolidColorBrush x:Key="Text.Secondary" Color="{StaticResource Text.Secondary.Color}"/>
+    <SolidColorBrush x:Key="Text.Muted" Color="{StaticResource Text.Muted.Color}"/>
+    <SolidColorBrush x:Key="Text.Ghost" Color="{StaticResource Text.Ghost.Color}"/>
+
+    <Color x:Key="Accent.Color">#34D6C0</Color>
+    <Color x:Key="Ok.Color">#3FBE8A</Color>
+    <Color x:Key="Warn.Color">#E0B24A</Color>
+    <Color x:Key="Danger.Color">#E0685C</Color>
+    <SolidColorBrush x:Key="Accent" Color="{StaticResource Accent.Color}"/>
+    <SolidColorBrush x:Key="Ok" Color="{StaticResource Ok.Color}"/>
+    <SolidColorBrush x:Key="Warn" Color="{StaticResource Warn.Color}"/>
+    <SolidColorBrush x:Key="Danger" Color="{StaticResource Danger.Color}"/>
+</ResourceDictionary>

@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:alloy="using:Avalloy.Views.Controls"
+             x:Class="Avalloy.Views.Controls.FontSizeStepper">
+    <!-- The hover-revealed − / ＋ text-size nudgers: flash readout · smaller · larger. Hidden at rest —
+         a host reveals it by setting IsRevealed (usually from its own HoverIntent dwell class, e.g.
+         `Grid.header.reveal alloy|FontSizeStepper → IsRevealed=True`). Opacity, not IsVisible, so the
+         host's header cluster never reflows; Opacity=0 also skips hit-testing, so the hidden buttons
+         can't swallow clicks. Clamping, tooltips ("14 · default 12") and the click flash all live
+         here — hosts only consume ValueChanged. -->
+    <UserControl.Styles>
+        <Style Selector="Border.fontbtn">
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Chip}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="Transitions">
+                <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.12"/></Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.fontbtn:pointerover">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        </Style>
+        <Style Selector="alloy|FontSizeStepper:revealed Border.fontbtn">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="Border.fontbtn TextBlock">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Quiet}"/>
+        </Style>
+        <!-- The click-feedback size readout ("14", or "12 · default") — flashes beside the − for ~a second
+             (Flash), then fades. The open tooltip goes stale on click; this is the live number. -->
+        <Style Selector="TextBlock.fontsizeflash">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Quiet}"/>
+            <Setter Property="Transitions">
+                <Transitions><DoubleTransition Property="Opacity" Duration="0:0:0.15"/></Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="TextBlock.fontsizeflash.show">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+        <TextBlock x:Name="FlashText" Classes="fontsizeflash" VerticalAlignment="Center" Margin="0,0,2,0"/>
+        <Border x:Name="SmallerBtn" Classes="fontbtn" Tapped="OnSmaller">
+            <TextBlock Text="−" Width="13" TextAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+        <Border x:Name="LargerBtn" Classes="fontbtn" Tapped="OnLarger">
+            <TextBlock Text="+" Width="13" TextAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+    </StackPanel>
+</UserControl>

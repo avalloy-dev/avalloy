@@ -1,0 +1,15 @@
+// Settings for rigsmith/shiprig-action (.github/workflows/release.yml).
+{
+  "$schema": "https://raw.githubusercontent.com/rigsmith/shiprig-action/main/schema/shiprig-action.json",
+  "prTitle": "chore: release",
+  // For a first release at 1.0.0 that is already on disk (VersionPrefix 1.0.0, no changesets
+  // pending): the version PR writes its changelog entry without bumping, and merging it publishes
+  // 1.0.0. Once a package is at 1.0.0 its entry is skipped, so these can stay. The workflow only
+  // runs in a public repository; elsewhere these do nothing.
+  "releaseAs": {
+    "Avalloy.Base": "1.0.0",
+    "Avalloy.Common": "1.0.0",
+    "Avalloy.Desktop": "1.0.0",
+    "Avalloy.IconTool": "1.0.0"
+  }
+}

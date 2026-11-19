@@ -1,0 +1,95 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="using:System">
+    <!-- Theme-INDEPENDENT design tokens: fonts, type scale, radii, shadow room. Colors
+         live in the per-variant theme dictionaries (Template.Light/Dark.axaml or an
+         app's own palette). Brand-neutral: families are comma-separated system
+         fallbacks so the library needs no bundled fonts. An app overrides any of
+         these by redefining the key. -->
+
+    <!-- Type families (system fallbacks; override with bundled brand fonts). -->
+    <FontFamily x:Key="Font.Display">Georgia, Times New Roman, serif</FontFamily>
+    <FontFamily x:Key="Font.Ui">Segoe UI, SF Pro Text, Helvetica Neue, Arial, sans-serif</FontFamily>
+    <FontFamily x:Key="Font.Mono">Cascadia Mono, Menlo, Consolas, monospace</FontFamily>
+
+    <!-- The display face's own answer to "display type, emphatic" and "display type, plain". A weight NAME is
+         whatever each foundry assigned its own ramp, not a shared scale: two families at the same nominal
+         weight can differ by a third in ink, so a control that hard-codes SemiBold sets one family correctly
+         and another far too dark. Library controls bind these instead; an app that lets the user PICK a display
+         face rewrites them per face and its choice reaches this library's chrome too. Defaults reproduce the
+         hard-coded values they replace, so an app that never sets them sees no change. -->
+    <FontWeight x:Key="Font.Ui.Weight">SemiBold</FontWeight>
+    <FontWeight x:Key="Font.Ui.WeightPlain">Normal</FontWeight>
+    <FontWeight x:Key="Font.Mono.Weight">SemiBold</FontWeight>
+    <FontWeight x:Key="Font.Mono.WeightPlain">Normal</FontWeight>
+    <FontWeight x:Key="Font.Display.Weight">SemiBold</FontWeight>
+    <FontWeight x:Key="Font.Display.WeightPlain">Normal</FontWeight>
+
+    <!-- Per-face OpenType features (stylistic sets, fractions), written by FontCatalog.Apply alongside the
+         family. EMPTY by default and never null: an empty collection is a real value that overrides an
+         INHERITED one, so a mono surface can reset the UI face's features rather than letting them through —
+         a tag like ss01 means something different in every family, and `frac` would rewrite "1/2" in code. -->
+    <FontFeatureCollection x:Key="Font.Ui.Features"/>
+    <FontFeatureCollection x:Key="Font.Mono.Features"/>
+    <FontFeatureCollection x:Key="Font.Display.Features"/>
+
+    <!-- Type scale (px). -->
+    <sys:Double x:Key="Size.Eyebrow">10</sys:Double>
+    <sys:Double x:Key="Size.Caption">11</sys:Double>
+    <sys:Double x:Key="Size.Body">13</sys:Double>
+    <sys:Double x:Key="Size.BodyLg">14</sys:Double>
+    <sys:Double x:Key="Size.Title">17</sys:Double>
+    <sys:Double x:Key="Size.Display">26</sys:Double>
+
+    <!-- Corner radii. -->
+    <CornerRadius x:Key="Radius.Chip">7</CornerRadius>
+    <CornerRadius x:Key="Radius.Input">7</CornerRadius>
+    <CornerRadius x:Key="Radius.Swatch">8</CornerRadius>
+    <CornerRadius x:Key="Radius.Card">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Pill">20</CornerRadius>
+
+    <!-- Role radii (v7) — one token per element ROLE so a reskin retunes a whole class of elements
+         in one line. True circles (radius == half the element size) stay literal in views — they
+         are geometry, not style. -->
+    <CornerRadius x:Key="Radius.Badge">5</CornerRadius>      <!-- count/kbd badges, tiny pills -->
+    <CornerRadius x:Key="Radius.TileSm">6</CornerRadius>     <!-- 22px icon tiles -->
+    <CornerRadius x:Key="Radius.Button">7</CornerRadius>     <!-- filled/secondary buttons -->
+    <CornerRadius x:Key="Radius.ButtonLg">9</CornerRadius>   <!-- hero buttons -->
+    <CornerRadius x:Key="Radius.Row">8</CornerRadius>        <!-- menu/list rows -->
+    <CornerRadius x:Key="Radius.Field">9</CornerRadius>      <!-- AlloyTextBox/AlloySelect field frames -->
+    <CornerRadius x:Key="Radius.Tile">9</CornerRadius>       <!-- 34px icon tiles / monograms -->
+    <CornerRadius x:Key="Radius.Menu">12</CornerRadius>      <!-- anchored popovers, context menus -->
+    <CornerRadius x:Key="Radius.Pane">14</CornerRadius>      <!-- top-level panes on the gutter (v7) -->
+    <CornerRadius x:Key="Radius.Window">18</CornerRadius>    <!-- window body (v7) -->
+
+    <!-- Edge weight — referenced wherever a role border is drawn, so line weight is one lever. -->
+    <Thickness x:Key="Edge.Hairline">1</Thickness>
+
+    <!-- Shadow room for POPUP-hosted menu chrome. Overlay popup hosts clip rendering to their
+         measured content size, so a menu's BoxShadow needs layout room: put this Margin on the
+         popup's content root and compensate the Popup's offsets by 20 toward the anchor. The
+         per-theme Menu.Shadow is tuned to fit inside it (max extent = yOffset + blur/2 ≤ 20).
+         AlloyDropDown/AlloySelect bake this in — only hand-rolled Popups apply it manually. -->
+    <Thickness x:Key="Menu.ShadowRoom">20</Thickness>
+
+    <!-- Shadows: the four-tier elevation ladder (Menu.Shadow < Shadow.Card < Shadow.Popover <
+         Shadow.Drawer) is THEME-DEPENDENT (dark deeper, light lighter) and lives in the
+         per-variant dictionaries (Template.Light/Dark.axaml), not here. -->
+
+    <!-- Avalloy TabStrip contract — geometry + fonts (theme-independent). The Desktop TabStrip
+         binds these neutral keys (apps on another theme engine synthesize them via TabStripTheming.Apply;
+         native apps get these defaults). Brush keys live in the per-variant dictionaries (AlloyTab*
+         aliases at the end of each template). -->
+    <StaticResource x:Key="AlloyTabFontFamily" ResourceKey="Font.Ui"/>
+    <sys:Double x:Key="AlloyTabFontSize">12</sys:Double>
+    <Thickness x:Key="PaneTabStripPadding">6,4,6,0</Thickness>
+    <Thickness x:Key="PaneTabPadding">12,4,8,4</Thickness>
+    <Thickness x:Key="PaneTabSpacing">0,3,2,0</Thickness>
+    <sys:Double x:Key="PaneTabMinHeight">32</sys:Double>
+    <CornerRadius x:Key="PaneTabCornerRadius">5,5,0,0</CornerRadius>
+    <Thickness x:Key="PaneTabActiveUnderlineThickness">0,0,0,2</Thickness>
+    <Thickness x:Key="PaneTabActiveBorderThickness">2</Thickness>
+    <sys:Double x:Key="PaneTabActiveDotSize">6</sys:Double>
+    <!-- Resolved indicator directive the control reads from app resources. -->
+    <x:String x:Key="AlloyPaneTabActiveIndicator">Underline</x:String>
+</ResourceDictionary>

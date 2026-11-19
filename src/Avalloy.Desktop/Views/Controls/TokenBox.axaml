@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Avalloy.Views.Controls.TokenBox"
+             x:Name="Root">
+  <!-- The dropdown item template is set in code-behind so the displayed prefix
+       follows TriggerChar (default '$'). -->
+  <AutoCompleteBox x:Name="Inner"
+                   FilterMode="Custom"
+                   MinimumPrefixLength="0"
+                   IsTextCompletionEnabled="False"
+                   Text="{Binding #Root.Text, Mode=TwoWay}"
+                   ItemsSource="{Binding #Root.TokenItems}"
+                   PlaceholderText="{Binding #Root.Placeholder}"/>
+</UserControl>

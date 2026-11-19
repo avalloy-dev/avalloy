@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Microsoft Testing Platform + MSTest, matching the other suites.
+         Avalloy.Desktop's services without a UI: the LogViewer view model goes through the LogBuffer uiPost
+         seam (the logging layer itself is tested in Avalloy.Common.Tests), ThemeService and ToastService
+         through their seams, and AppRelaunch is processes and files. No headless dispatcher needed. What
+         Avalloy.Base holds (preferences, commands, keymaps, the palette) is tested in Avalloy.Base.Tests. -->
+    <EnableMicrosoftTestingPlatform>true</EnableMicrosoftTestingPlatform>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+    <!-- 15s until AppRelaunchTests arrived: those spawn real processes and wait on them (one deliberately
+         waits out a 3s stand-in, another waits 1.5s to prove the watcher has NOT launched yet), so 15s was
+         cancelling the module rather than guarding it. Still a hang guard, just one sized for what the suite
+         actually does. -->
+    <TestingPlatformCommandLineArguments>--timeout 120s</TestingPlatformCommandLineArguments>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.5.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Desktop\Avalloy.Desktop.csproj" />
+  </ItemGroup>
+</Project>

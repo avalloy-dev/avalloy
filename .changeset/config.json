@@ -1,0 +1,25 @@
+{
+  "$schema": "https://rigsmith.dev/schemas/changeset-config.json",
+  "baseBranch": "main",
+  "access": "public",
+  "updateInternalDependencies": "patch",
+  "tagTemplate": "v${version}",
+  "ignore": [
+    "avalloy-site",
+    "demos",
+    "tests"
+  ],
+  "linked": [],
+  "fixed": [],
+  "forgeRelease": {
+    "mode": "combined",
+    "name": "Avalloy ${version}",
+    "tag": "v${version}"
+  },
+  "dotnet": {
+    "sourcePath": "src",
+    "packageSource": "https://api.nuget.org/v3/index.json",
+    "oidc": "auto",
+    "user": "JohnCampionJr"
+  }
+}

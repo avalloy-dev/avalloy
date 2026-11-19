@@ -1,0 +1,59 @@
+<!-- Slim scrollbars over Fluent's own ScrollBar, app-wide. Include it BY ITS CLASS: <themes:SlimScrollBars/> in XAML
+     (xmlns:themes="using:Avalloy.Themes"), or Styles.Add(new SlimScrollBars()) in code. Not with
+     <StyleInclude Source="avares://Avalloy.Desktop/Themes/SlimScrollBars.axaml"/>: this sheet is compiled x:Class, and
+     the XAML compiler can't resolve an x:Class sheet by URI from another assembly (AVLN2000).
+     The other way to slim them is OverlayScrollBars.axaml, an opt-in theme with its own template; this one
+     keeps Fluent's template and changes nothing until it is included. Pure Avalonia: every resource it reads is
+     Fluent's own. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Avalloy.Themes.SlimScrollBars">
+
+    <!-- ── One dressing, always the slim one ─────────────────────────────────────────────────────────────────
+         Fluent's auto-hide bar has two looks: a slim neutral thumb at rest, and on hover or press a CLASSIC one
+         (opaque strip, filled track, full-width thumb, and a stepper arrow at each end). That second look lands on
+         top of the content it overlays, so a scroll well changes character the moment you touch it. These rules
+         hold every part at its resting value, so there is only ever the slim bar.
+         The steppers go by IsVisible, not Opacity: they are Auto-sized track cells, so collapsing them hands their
+         length back to the thumb instead of leaving dead gaps at the ends. Both orientations answer to the same two
+         part names; Fluent calls the horizontal ones LineUp/LineDown as well.
+         Trade knowingly made: the thumb's slimness IS a RenderTransform, and Avalonia hit-tests the transformed
+         geometry, so the drag target is as thin as it looks. Clicking the track still pages (the page buttons are
+         full-size and transparent), and the wheel is unaffected. -->
+    <Style Selector="ScrollBar /template/ RepeatButton#PART_LineUpButton,
+                     ScrollBar /template/ RepeatButton#PART_LineDownButton">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="ScrollBar[IsExpanded=true] /template/ Grid#Root">
+        <Setter Property="Background" Value="{DynamicResource ScrollBarBackground}"/>
+    </Style>
+    <Style Selector="ScrollBar[IsExpanded=true] /template/ Rectangle#TrackRect">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="ScrollBar:vertical[IsExpanded=true] /template/ Thumb">
+        <Setter Property="RenderTransform" Value="{DynamicResource VerticalSmallScrollThumbScaleTransform}"/>
+    </Style>
+    <Style Selector="ScrollBar:horizontal[IsExpanded=true] /template/ Thumb">
+        <Setter Property="RenderTransform" Value="{DynamicResource HorizontalSmallScrollThumbScaleTransform}"/>
+    </Style>
+
+    <!-- ── ScrollViewer.autohide: the bars overlay the content ──────────────────────────────────────────────
+         AllowAutoHide has to be set on the BAR, not just the ScrollViewer. Left to the template's binding from the
+         owner, the bar's first paint is the classic dressing in a layout strip of its own, and it settles into the
+         thin overlay only after the first pointer or scroll event. An overlaying bar sits on the viewport's edge,
+         so a scroller's end gap belongs inside its content (a Margin), not in the ScrollViewer's Padding. -->
+    <Style Selector="ScrollViewer.autohide /template/ ScrollBar">
+        <Setter Property="AllowAutoHide" Value="True"/>
+    </Style>
+
+    <!-- ── ScrollViewer.hiddenbars: scrolls, but draws no bar ───────────────────────────────────────────────
+         For a scroller that draws its own position indicator. Never ScrollBarVisibility="Hidden" for that on a
+         large surface: on Avalonia 12 / macOS, Hidden plus a mass reflow while scrolled off the end stops frame
+         production for seconds until the next input event. The bar stays logically Auto here, so scroll
+         anchoring keeps to the healthy path; it is only invisible and lets the pointer through. -->
+    <Style Selector="ScrollViewer.hiddenbars /template/ ScrollBar">
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="AllowAutoHide" Value="True"/>
+    </Style>
+</Styles>

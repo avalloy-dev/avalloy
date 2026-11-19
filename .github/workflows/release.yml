@@ -1,0 +1,65 @@
+# Release with shiprig, through rigsmith/shiprig-action.
+#
+# While changesets are pending, the action keeps a version PR open (branch
+# changeset-release/main) that bumps VersionPrefix and writes the CHANGELOGs. Merging that PR
+# publishes the packages to nuget.org, pushes the v<version> tag and makes one GitHub release for
+# the version (forgeRelease "combined" in .changeset/config.json). A run started by hand
+# (workflow_dispatch) publishes what is on disk: a first release, or a retry.
+#
+# Publishing uses NuGet trusted publishing (OIDC), so there is no API key in the repository:
+# shiprig exchanges the job's id-token for a short-lived nuget.org key. That needs the "dotnet"
+# block of .changeset/config.json to name nuget.org as its packageSource, with "oidc": "auto" and
+# "user" set to the nuget.org account that owns the policy, and "access": "public". The
+# trusted-publishing policy on nuget.org names this repository and this workflow file, so a
+# publish has to stay in release.yml.
+#
+# Every action is pinned to a commit SHA: this job can publish packages and push tags, and a tag
+# can be moved under it. The version is in the comment, for Dependabot or Renovate.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write       # the version branch, the tag, the GitHub release
+  pull-requests: write  # the version PR, and the "released in" comments
+  id-token: write       # NuGet trusted publishing
+
+jobs:
+  release:
+    # Public repositories only. A private copy keeps releasing by hand (shiprig release), and the
+    # nuget.org policy would refuse it anyway.
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # The baked icon output is checked in; see the Build step in ci.yml.
+      SkipBakeIconPacks: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # shiprig finds the last release from its tag
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      # Pinned, so a release always runs the shiprig it was tested with.
+      - name: Install shiprig
+        run: npm install -g @rigsmith/shiprig@1.28.0
+
+      - name: Version PR, or publish
+        uses: rigsmith/shiprig-action@86fbe9dc7894257412ae5aa6dc79601689db0f87 # v0.8.2
+        with:
+          publish-script: shiprig publish --yes

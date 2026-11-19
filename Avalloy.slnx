@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Avalloy.Common/Avalloy.Common.csproj" />
+    <Project Path="src/Avalloy.Base/Avalloy.Base.csproj" />
+    <Project Path="src/Avalloy.Desktop/Avalloy.Desktop.csproj" />
+    <Project Path="src/Avalloy.IconTool/Avalloy.IconTool.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Avalloy.Common.Tests/Avalloy.Common.Tests.csproj" />
+    <Project Path="tests/Avalloy.Architecture.Tests/Avalloy.Architecture.Tests.csproj" />
+    <Project Path="tests/Avalloy.Base.Tests/Avalloy.Base.Tests.csproj" />
+    <Project Path="tests/Avalloy.Desktop.Tests/Avalloy.Desktop.Tests.csproj" />
+    <Project Path="tests/Avalloy.Views.Tests/Avalloy.Views.Tests.csproj" />
+  </Folder>
+  <Folder Name="/demos/">
+    <Project Path="demos/Avalloy.Starter/Avalloy.Starter.csproj" />
+    <Project Path="demos/NativeThemeDemo/NativeThemeDemo.csproj" />
+  </Folder>
+</Solution>

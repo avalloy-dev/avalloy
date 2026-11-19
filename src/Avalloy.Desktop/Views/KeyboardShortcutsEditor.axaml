@@ -1,0 +1,252 @@
+<!-- Reusable keyboard-shortcuts editor: list-left / editor-right.
+     The left ListBox enumerates every registered command (sorted by category
+     then display name); selecting a row swaps the editor on the right to that
+     command's chip recorder. Drop this control into any preferences surface and
+     bind its DataContext to a KeyboardShortcutsViewModel. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalloy="using:Avalloy"
+             xmlns:vm="using:Avalloy.Commands"
+             mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="500"
+             x:Class="Avalloy.Views.KeyboardShortcutsEditor"
+             x:DataType="vm:KeyboardShortcutsViewModel">
+
+    <UserControl.Styles>
+        <!-- Small-caps group label. Inlined so the control carries no dependency
+             on any host app's shared preferences stylesheet. -->
+        <Style Selector="TextBlock.section-header">
+            <Setter Property="FontFamily" Value="ui-monospace"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+            <Setter Property="Margin" Value="0,18,0,6"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <!-- List rows: two-line layout with a small category tag on top. -->
+        <Style Selector="ListBox.command-list">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style Selector="ListBox.command-list ListBoxItem">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+
+        <Style Selector="TextBlock.command-name">
+            <Setter Property="FontSize" Value="{DynamicResource Size.Body}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+        <Style Selector="TextBlock.command-category">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontFamily" Value="ui-monospace"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+        <!-- Right-aligned gesture summary on each row ("Cmd+D · F6"), menu-item
+             style: code font, muted, vertically centered across the two lines. -->
+        <Style Selector="TextBlock.command-gestures">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+        <!-- Selected row: flip every line to the on-accent foreground so it stays
+             legible on the saturated selection fill (the muted category tag was
+             near-invisible on it otherwise). Secondary bits keep their muted feel
+             via opacity rather than a darker brush. -->
+        <Style Selector="ListBox.command-list ListBoxItem:selected TextBlock.command-name">
+            <Setter Property="Foreground" Value="{DynamicResource AlloyAccentSelectionForeground}"/>
+        </Style>
+        <Style Selector="ListBox.command-list ListBoxItem:selected TextBlock.command-category">
+            <Setter Property="Foreground" Value="{DynamicResource AlloyAccentSelectionForeground}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+        <Style Selector="ListBox.command-list ListBoxItem:selected TextBlock.command-gestures">
+            <Setter Property="Foreground" Value="{DynamicResource AlloyAccentSelectionForeground}"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+
+        <!-- Existing-gesture chips: tiny inline read-only TextBox + × button. -->
+        <Style Selector="TextBox.gesture-chip">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.chip-remove">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="2,0"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+            <Setter Property="ToolTip.Tip" Value="Remove this binding"/>
+            <Setter Property="Content" Value="×"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.chip-add">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Seam}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Content" Value="+ Add gesture"/>
+            <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        </Style>
+        <!-- Reset-to-default button. Self-contained (no shared field-reset class). -->
+        <Style Selector="Button.kb-reset">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+            <Setter Property="ToolTip.Tip" Value="Reset gestures to default"/>
+            <Setter Property="Content" Value="↺"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.kb-reset:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource AlloyAccentBrush}"/>
+        </Style>
+        <Style Selector="Button.kb-reset:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="260,1,*">
+
+        <!-- ───── LEFT: search + command list ───── -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,*">
+
+            <!-- Filter box. Empty = show everything; matches DisplayName /
+                 Category / CommandName / bound gesture text. Bypasses global
+                 dispatch so typing here can't accidentally trigger a command. -->
+            <Border Grid.Row="0" Padding="8,8,8,4">
+                <TextBox Text="{Binding Filter, Mode=TwoWay}"
+                         PlaceholderText="Search commands…"
+                         avalloy:ShellWindow.BypassGlobalKeyDispatch="True"
+                         FontSize="{DynamicResource Size.Caption}">
+                    <TextBox.InnerRightContent>
+                        <Button Command="{Binding ClearFilterCommand}"
+                                IsVisible="{Binding HasFilter}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
+                                Width="20" Height="20"
+                                MinWidth="0" MinHeight="0"
+                                Margin="0,0,4,0"
+                                Content="×"
+                                FontSize="14"
+                                VerticalContentAlignment="Center"
+                                HorizontalContentAlignment="Center"
+                                Foreground="{DynamicResource Text.Muted}"
+                                ToolTip.Tip="Clear search"/>
+                    </TextBox.InnerRightContent>
+                </TextBox>
+            </Border>
+
+            <ListBox Grid.Row="1"
+                     x:Name="CommandList"
+                     Classes="command-list"
+                     ItemsSource="{Binding FilteredShortcuts}"
+                     SelectedItem="{Binding SelectedShortcut, Mode=TwoWay}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="vm:KeyboardShortcutRowViewModel">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="0">
+                                <TextBlock Classes="command-category" Text="{Binding Category}"/>
+                                <TextBlock Classes="command-name" Text="{Binding DisplayName}"
+                                           ToolTip.Tip="{Binding CommandName}"/>
+                            </StackPanel>
+                            <!-- Effective bindings at a glance (menu-item style). -->
+                            <TextBlock Grid.Column="1" Classes="command-gestures"
+                                       Text="{Binding GesturesSummary}"
+                                       IsVisible="{Binding HasGestures}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </Grid>
+
+        <Border Grid.Column="1" Background="{DynamicResource Edge.Pane}"/>
+
+        <!-- ───── RIGHT: editor for the selected command ───── -->
+        <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Disabled">
+            <ContentControl Content="{Binding SelectedShortcut}">
+                <ContentControl.ContentTemplate>
+                    <DataTemplate DataType="vm:KeyboardShortcutRowViewModel">
+                        <StackPanel Margin="28,20,28,28" Spacing="12">
+                            <StackPanel Orientation="Vertical" Spacing="2">
+                                <TextBlock Classes="command-category" Text="{Binding Category}"/>
+                                <TextBlock FontSize="{DynamicResource Size.BodyLg}"
+                                           FontWeight="SemiBold"
+                                           Text="{Binding DisplayName}"
+                                           Foreground="{DynamicResource Text.Primary}"/>
+                                <TextBlock FontSize="{DynamicResource Size.Caption}"
+                                           FontFamily="{DynamicResource Font.Mono}"
+                                           Foreground="{DynamicResource Text.Muted}"
+                                           Text="{Binding CommandName}"/>
+                            </StackPanel>
+
+                            <TextBlock Classes="section-header" Text="GESTURES" Margin="0,8,0,4"/>
+
+                            <ItemsControl ItemsSource="{Binding Chips}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="vm:GestureChipViewModel">
+                                        <Grid ColumnDefinitions="Auto,Auto" Margin="0,0,6,6">
+                                            <TextBox Grid.Column="0"
+                                                     Classes="gesture-chip"
+                                                     Text="{Binding GestureDisplay, Mode=OneWay}"
+                                                     avalloy:ShellWindow.BypassGlobalKeyDispatch="True"
+                                                     KeyDown="OnGestureRecorderKeyDown"/>
+                                            <Button Grid.Column="1"
+                                                    Classes="chip-remove"
+                                                    Command="{Binding RemoveCommand}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Classes="chip-add" Command="{Binding AddGestureCommand}"/>
+                                <Button Classes="kb-reset"
+                                        Command="{Binding ResetCommand}"
+                                        IsVisible="{Binding IsOverridden}"/>
+                            </StackPanel>
+
+                            <TextBlock FontSize="{DynamicResource Size.Caption}"
+                                       Foreground="{DynamicResource Text.Muted}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,12,0,0"
+                                       Text="Click a chip and press the keys you want bound. Escape unbinds a chip. Recording a gesture already bound to another command moves it to this one."/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

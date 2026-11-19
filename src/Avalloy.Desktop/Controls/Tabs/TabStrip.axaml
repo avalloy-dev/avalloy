@@ -1,0 +1,150 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tabs="using:Avalloy.Controls.Tabs"
+             xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Svg.Controls.Skia.Avalonia"
+             x:Class="Avalloy.Controls.Tabs.TabStrip"
+             x:Name="Root">
+
+  <!-- The control ships its own visual language so any host app gets the tab
+       look without wiring styles. Every color/font it references is a neutral
+       Alloy*/Pane* DynamicResource: shell apps publish them via the
+       TabStripTheming.Apply tail (from the app's own palette); native-theme
+       apps define them directly in their theme dictionaries. -->
+  <UserControl.Styles>
+    <StyleInclude Source="avares://Avalloy.Desktop/Controls/Tabs/TabStripStyles.axaml"/>
+  </UserControl.Styles>
+
+  <Border x:Name="StripRoot" Classes="tab-strip"
+          PointerMoved="OnStripPointerMoved"
+          PointerReleased="OnStripPointerReleased"
+          PointerCaptureLost="OnStripPointerCaptureLost">
+    <DockPanel LastChildFill="True">
+      <!-- Overflow chevron at the far trailing edge — shown only when tabs
+           overflow the strip; opens a dropdown of every tab for direct jump
+           (keeps pinned + off-screen tabs reachable). -->
+      <Button x:Name="OverflowButton"
+              DockPanel.Dock="Right"
+              Classes="tab-overflow"
+              Content="⌄"
+              Focusable="False"
+              IsVisible="False"
+              ToolTip.Tip="All tabs"
+              Click="OnOverflowClick"/>
+      <!-- "+" pinned to the trailing edge, outside the scroll viewport. -->
+      <Button x:Name="NewTabButton"
+              DockPanel.Dock="Right"
+              Classes="new-tab"
+              Content="+"
+              Focusable="False"
+              Click="OnNewTabClick"/>
+      <!-- Tabs scroll horizontally when they overflow; the bar is hidden but
+           wheel / two-finger swipe still scroll. -->
+      <ScrollViewer x:Name="TabsScroller"
+                    HorizontalScrollBarVisibility="Hidden"
+                    VerticalScrollBarVisibility="Disabled">
+        <ItemsControl x:Name="TabItems" HorizontalAlignment="Left">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="tabs:ITabItem">
+              <Border Classes="tab"
+                      Classes.pinned="{Binding IsPinned}"
+                      Classes.locked="{Binding IsLocked}"
+                      Classes.preview="{Binding IsPreview}"
+                      ToolTip.Tip="{Binding DisplayName}"
+                      PointerPressed="OnTabPointerPressed"
+                      ContextRequested="OnTabContextRequested">
+                <Border.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Tag="keep" Header="Keep open" Click="OnTabKeepClick"/>
+                    <MenuItem Tag="pin" Header="Pin tab" Click="OnTabPinClick"/>
+                    <MenuItem Tag="unpin" Header="Unpin tab" Click="OnTabUnpinClick"/>
+                    <MenuItem Tag="lock" Header="Lock tab" Click="OnTabLockClick"/>
+                    <MenuItem Tag="unlock" Header="Unlock tab" Click="OnTabUnlockClick"/>
+                    <MenuItem Tag="browse-on" Header="Browse subfolders in place" Click="OnTabBrowseOnClick"/>
+                    <MenuItem Tag="browse-off" Header="Stop browsing subfolders" Click="OnTabBrowseOffClick"/>
+                    <Separator/>
+                    <MenuItem Tag="duplicate" Header="Duplicate tab" Click="OnTabDuplicateClick"/>
+                    <MenuItem Tag="close" Header="Close tab" Click="OnTabCloseClick"/>
+                    <MenuItem Tag="close-others" Header="Close other tabs" Click="OnTabCloseOthersClick"/>
+                    <MenuItem Tag="close-all" Header="Close all tabs" Click="OnTabCloseAllClick"/>
+                  </ContextMenu>
+                </Border.ContextMenu>
+                <DockPanel LastChildFill="True">
+                  <!-- Three buttons share the trailing slot; exactly one shows
+                       based on tab state (close by default, unpin when pinned,
+                       unlock when locked). Collapsed buttons drop from layout. -->
+                  <Button DockPanel.Dock="Right"
+                          Classes="tab-close"
+                          Content="×"
+                          Focusable="False"
+                          IsVisible="{Binding ShowCloseButton}"
+                          Click="OnTabCloseClick"/>
+                  <!-- Active-dot indicator. Default-hidden via a STYLE (local
+                       values beat style setters in Avalonia, so an inline False
+                       would block the indicator-dot override). -->
+                  <Border DockPanel.Dock="Right" Classes="tab-active-dot"/>
+                  <Button DockPanel.Dock="Right"
+                          Classes="tab-pin"
+                          Focusable="False"
+                          IsVisible="{Binding ShowPinButton}"
+                          Click="OnTabUnpinClick"
+                          ToolTip.Tip="Unpin">
+                    <svg:Svg Path="{Binding PinIconUri}" CurrentColor="#A8A8B3"
+                             Width="12" Height="12"/>
+                  </Button>
+                  <Button DockPanel.Dock="Right"
+                          Classes="tab-lock-btn"
+                          Focusable="False"
+                          IsVisible="{Binding ShowLockButton}"
+                          Click="OnTabUnlockClick"
+                          ToolTip.Tip="Unlock">
+                    <svg:Svg Path="{Binding LockIconUri}" CurrentColor="#A8A8B3"
+                             Width="12" Height="12"/>
+                  </Button>
+                  <!-- Passive status badge (ITabItem.BadgeIconUri), left of the
+                       pin/lock/close cluster. Not a button: whatever set the mark
+                       owns clearing it. Collapses when the host supplies no URI. -->
+                  <Panel DockPanel.Dock="Right"
+                         Classes="tab-badge"
+                         IsVisible="{Binding BadgeIconUri, Converter={x:Static ObjectConverters.IsNotNull}}"
+                         ToolTip.Tip="{Binding BadgeToolTip}">
+                    <svg:Svg Path="{Binding BadgeIconUri}" CurrentColor="#A8A8B3"
+                             Width="12" Height="12"/>
+                  </Panel>
+                  <!-- Leading icon, lazy-loaded by the host. Image renders nothing
+                       when Source is null; the slot stays reserved at 16x16 so the
+                       layout doesn't shift when the bitmap arrives. -->
+                  <Image DockPanel.Dock="Left"
+                         Source="{Binding Icon}"
+                         Width="16" Height="16" Margin="0,0,6,0"
+                         VerticalAlignment="Center"
+                         Stretch="Uniform"
+                         RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                  <!-- Activity status, orthogonal to the icon and visible on
+                       background tabs. The act-* classes (one per TabActivity)
+                       drive the per-state visual in TabStripStyles; the slot
+                       collapses when Idle (and when the strip carries the
+                       host-driven "activity-off" class). -->
+                  <Panel DockPanel.Dock="Left" Classes="activity"
+                         Margin="0,0,6,0" VerticalAlignment="Center"
+                         Classes.act-running="{Binding Activity, Converter={x:Static tabs:TabActivityEqualsConverter.Instance}, ConverterParameter=Running}"
+                         Classes.act-attention="{Binding Activity, Converter={x:Static tabs:TabActivityEqualsConverter.Instance}, ConverterParameter=NeedsAttention}"
+                         Classes.act-error="{Binding Activity, Converter={x:Static tabs:TabActivityEqualsConverter.Instance}, ConverterParameter=Error}"
+                         Classes.act-complete="{Binding Activity, Converter={x:Static tabs:TabActivityEqualsConverter.Instance}, ConverterParameter=Complete}">
+                    <Border Classes="activity-dot"/>
+                    <TextBlock Classes="activity-check" Text="✓"/>
+                  </Panel>
+                  <TextBlock Classes="tab-name" Text="{Binding DisplayName}"/>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+  </Border>
+</UserControl>

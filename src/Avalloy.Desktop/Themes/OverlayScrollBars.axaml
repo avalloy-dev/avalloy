@@ -1,0 +1,158 @@
+<!-- Thin, auto-hiding overlay scrollbar — opt in per ScrollViewer with
+     Theme="{StaticResource OverlayScrollViewer}" and (for the macOS show-while-
+     scrolling reveal) ap:OverlayScrollbars.Reveal="True" (the attached behavior
+     in AttachedProperties/OverlayScrollbars.cs). Include app-wide via
+     avares://Avalloy.Desktop/Themes/OverlayScrollBars.axaml.
+     Self-contained: pure Avalonia, no theme-engine or app resources. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Thin semi-transparent thumb. The alpha-grey reads on both light and dark
+       variants without needing per-variant resources. -->
+  <ControlTheme x:Key="OverlayScrollBarThumb" TargetType="Thumb">
+    <Setter Property="Background" Value="#80888888"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" CornerRadius="100"/>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <BrushTransition Property="Background" Duration="0:0:0.12"/>
+      </Transitions>
+    </Setter>
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="#B0888888"/>
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="#D0888888"/>
+    </Style>
+  </ControlTheme>
+
+  <!-- Invisible page-scroll regions: clicking the track above/below the thumb
+       still pages, but renders nothing. -->
+  <ControlTheme x:Key="OverlayScrollBarPageButton" TargetType="RepeatButton">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"/>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <!-- Transparent at rest; fades in when Avalonia marks it :expanded (pointer-over
+       only, since AllowAutoHide is hover-only by design), when dragged, hovered, or
+       when the "scrolling" class is applied by OverlayScrollbars on real scroll. -->
+  <ControlTheme x:Key="OverlayScrollBar" TargetType="ScrollBar">
+    <Setter Property="Opacity" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.2"/>
+      </Transitions>
+    </Setter>
+
+    <Style Selector="^:vertical">
+      <Setter Property="Width" Value="9"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" Padding="2,3">
+            <Track Name="PART_Track"
+                   Orientation="Vertical"
+                   IsDirectionReversed="True"
+                   Minimum="{TemplateBinding Minimum}"
+                   Maximum="{TemplateBinding Maximum}"
+                   Value="{TemplateBinding Value, Mode=TwoWay}"
+                   ViewportSize="{TemplateBinding ViewportSize}">
+              <Track.DecreaseButton>
+                <RepeatButton Theme="{StaticResource OverlayScrollBarPageButton}"/>
+              </Track.DecreaseButton>
+              <Track.Thumb>
+                <Thumb Theme="{StaticResource OverlayScrollBarThumb}" MinHeight="24"/>
+              </Track.Thumb>
+              <Track.IncreaseButton>
+                <RepeatButton Theme="{StaticResource OverlayScrollBarPageButton}"/>
+              </Track.IncreaseButton>
+            </Track>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="^:horizontal">
+      <Setter Property="Height" Value="9"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" Padding="3,2">
+            <Track Name="PART_Track"
+                   Orientation="Horizontal"
+                   Minimum="{TemplateBinding Minimum}"
+                   Maximum="{TemplateBinding Maximum}"
+                   Value="{TemplateBinding Value, Mode=TwoWay}"
+                   ViewportSize="{TemplateBinding ViewportSize}">
+              <Track.DecreaseButton>
+                <RepeatButton Theme="{StaticResource OverlayScrollBarPageButton}"/>
+              </Track.DecreaseButton>
+              <Track.Thumb>
+                <Thumb Theme="{StaticResource OverlayScrollBarThumb}" MinWidth="24"/>
+              </Track.Thumb>
+              <Track.IncreaseButton>
+                <RepeatButton Theme="{StaticResource OverlayScrollBarPageButton}"/>
+              </Track.IncreaseButton>
+            </Track>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="^:expanded">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="^:dragging">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="^.scrolling">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+  </ControlTheme>
+
+  <!-- Overlay ScrollViewer: the content presenter spans the full grid and the
+       scrollbar floats on top (shared cell) instead of docking a column, so the
+       viewport width never changes when the bar appears. The PART names are what
+       ScrollViewer wires its scroll state to, so they must match exactly. -->
+  <ControlTheme x:Key="OverlayScrollViewer" TargetType="ScrollViewer">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,Auto">
+          <ScrollContentPresenter Name="PART_ScrollContentPresenter"
+                                  Grid.Row="0" Grid.RowSpan="2"
+                                  Grid.Column="0" Grid.ColumnSpan="2"
+                                  Background="{TemplateBinding Background}"
+                                  Padding="{TemplateBinding Padding}"
+                                  HorizontalSnapPointsAlignment="{TemplateBinding HorizontalSnapPointsAlignment}"
+                                  VerticalSnapPointsAlignment="{TemplateBinding VerticalSnapPointsAlignment}"
+                                  HorizontalSnapPointsType="{TemplateBinding HorizontalSnapPointsType}"
+                                  VerticalSnapPointsType="{TemplateBinding VerticalSnapPointsType}"
+                                  ScrollViewer.IsScrollInertiaEnabled="{TemplateBinding IsScrollInertiaEnabled}"/>
+          <ScrollBar Name="PART_VerticalScrollBar"
+                     Orientation="Vertical"
+                     Theme="{StaticResource OverlayScrollBar}"
+                     Grid.Row="0" Grid.Column="1"
+                     AllowAutoHide="{TemplateBinding AllowAutoHide}"/>
+          <ScrollBar Name="PART_HorizontalScrollBar"
+                     Orientation="Horizontal"
+                     Theme="{StaticResource OverlayScrollBar}"
+                     Grid.Row="1" Grid.Column="0"
+                     AllowAutoHide="{TemplateBinding AllowAutoHide}"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

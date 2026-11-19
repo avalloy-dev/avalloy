@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Avalloy.Base</AssemblyName>
+    <!-- RootNamespace stays Avalloy, as in Avalloy.Desktop which these types moved out of: they keep their
+         Avalloy.Preferences / Avalloy.Commands / Avalloy.Theming / Avalloy.Text namespaces, so a
+         consumer's `using` lines are unchanged. -->
+    <RootNamespace>Avalloy</RootNamespace>
+    <!-- The part of the platform an app needs without a desktop: preferences, the theme token cascade,
+         commands, keymaps and the command palette's view model. It references Avalonia's base package and
+         nothing that draws: no Avalonia.Desktop, no Fluent, no Skia. A terminal app on Consolonia
+         (HermitCrab) takes this alone; Avalloy.Desktop builds the shell on top of it. The guard is
+         Avalloy.Architecture.Tests' BasePackageTests. -->
+    <Description>The UI-free core of an Avalloy app: preferences, theme presets and the token cascade, commands, keymaps and the command palette view model. References Avalonia's base package only — no desktop platform, Fluent theme or Skia.</Description>
+    <PackageTags>avalonia;mvvm;theming;preferences;keymaps</PackageTags>
+    <!-- HermitCrab ships as a Native AOT single binary on this package: the trim, single-file and AOT
+         analyzers make a change that would break that fail here, not in its publish. -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- MacKeyboardLayout and WindowsKeyboardLayout use [LibraryImport], whose generated stubs are unsafe. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Avalloy.Common, plain .NET: AppPaths, which PreferencesLocation resolves the conventional config
+         folder through. Its consumers get the rest of Common (CliRunner, the logging stack) with it. -->
+    <ProjectReference Include="..\Avalloy.Common\Avalloy.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The tests reach the file watchers' internal seams (IFileChangeWatcher, IWatcherScheduler,
+         DebouncedFileWatcher.FileState). -->
+    <InternalsVisibleTo Include="Avalloy.Base.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.6" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <!-- Abstractions only. KeyboardDispatcher resolves commands from an IServiceProvider and
+         ThemeVariantResolver logs through ILogger; the host that builds either lives in Avalloy.Desktop. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
+    <!-- IFileSystem abstraction. PreferencesService takes it via ctor so
+         tests can substitute MockFileSystem in place of touching real disk. -->
+    <PackageReference Include="System.IO.Abstractions" Version="23.0.1" />
+  </ItemGroup>
+</Project>

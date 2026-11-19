@@ -1,0 +1,21 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="NativeThemeDemo.App"
+             RequestedThemeVariant="Dark">
+    <Application.Styles>
+        <FluentTheme />
+        <!-- Native theme contract from Avalloy.Desktop. -->
+        <StyleInclude Source="avares://Avalloy.Desktop/Themes/Type.axaml" />
+        <StyleInclude Source="avares://Avalloy.Desktop/Themes/ControlStyles.axaml" />
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Theme-independent tokens (fonts/sizes/radii/shadows). The active
+                     per-variant palette is swapped in at runtime by NativeThemeController. -->
+                <ResourceInclude Source="avares://Avalloy.Desktop/Themes/Tokens.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

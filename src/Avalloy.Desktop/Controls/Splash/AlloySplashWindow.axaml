@@ -1,0 +1,43 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Avalloy.Controls.Splash.AlloySplashWindow"
+        x:Name="Root"
+        Title="{Binding #Root.AppName}"
+        Width="440" SizeToContent="Height"
+        CanResize="False"
+        WindowDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        Topmost="True"
+        TransparencyLevelHint="Transparent"
+        Background="Transparent">
+
+  <!-- Borderless card: the window itself is transparent so the token-radius corners actually round.
+       Surface.Pane2 (the content-pane layer), not Surface.Window — a lone floating card has no gutter
+       to sit in, and the pane value reads as "the app, arriving" rather than empty chrome. Topmost so
+       the main window can be shown and painted UNDERNEATH it before the handoff closes the splash. -->
+  <Border Background="{DynamicResource Surface.Pane2}"
+          CornerRadius="{DynamicResource Radius.Window}"
+          Padding="32,28,32,20">
+    <StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+        <Image Source="{Binding #Root.Logo}" Width="44" Height="44" VerticalAlignment="Center"
+               IsVisible="{Binding #Root.Logo, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+        <TextBlock Text="{Binding #Root.AppName}" VerticalAlignment="Center"
+                   FontFamily="{DynamicResource Font.Display}" FontSize="26"
+                   Foreground="{DynamicResource Text.Primary}"/>
+      </StackPanel>
+
+      <!-- The live boot phase (reported through IProgress&lt;string&gt;). MinHeight pins the card
+           height across phase swaps so the window never jitters. -->
+      <TextBlock Text="{Binding #Root.Status}" Margin="0,18,0,0" MinHeight="20"
+                 HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                 Foreground="{DynamicResource Text.Secondary}" FontSize="13"/>
+
+      <!-- Build vitals: channel + when this binary was built. -->
+      <TextBlock Text="{Binding #Root.BuildInfo}" Margin="0,16,0,0"
+                 HorizontalAlignment="Center"
+                 Foreground="{DynamicResource Text.Faint}" FontSize="11"/>
+    </StackPanel>
+  </Border>
+</Window>

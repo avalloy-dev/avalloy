@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Avalloy.Views.Controls.BusySpinner"
+             Width="13" Height="13">
+    <!-- A 3/4 ring; the code-behind spins it with a COMPOSITION animation (render-thread), so it keeps
+         turning through a UI-thread layout burst — see Avalonia docs graphics-animation/composition-animations. -->
+    <Arc x:Name="Ring" Width="13" Height="13"
+         Stroke="{DynamicResource Text.Muted}" StrokeThickness="1.5"
+         StartAngle="-90" SweepAngle="260" StrokeLineCap="Round"/>
+</UserControl>

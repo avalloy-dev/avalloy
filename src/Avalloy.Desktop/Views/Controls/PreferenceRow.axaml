@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="using:Avalonia.Data.Converters"
+             x:Class="Avalloy.Views.Controls.PreferenceRow"
+             x:Name="Root">
+    <!-- One settings row: a Title (+ optional muted Description) on the left, a trailing control on the right.
+         Centralizes the "*,Auto grid + label stack" that prefs/settings panes repeat for every setting. Put the
+         right-hand control (button/toggle/flyout/chips) in <PreferenceRow.Trailing>. -->
+    <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center" Margin="0,0,16,0">
+            <TextBlock Text="{Binding Title, ElementName=Root}" FontWeight="Medium"/>
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding Description, ElementName=Root}"
+                       IsVisible="{Binding Description, ElementName=Root, Converter={x:Static conv:StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+        <ContentPresenter Grid.Column="1" Content="{Binding Trailing, ElementName=Root}" VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>

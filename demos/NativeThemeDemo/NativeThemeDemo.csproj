@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- avares://NativeThemeDemo/... -->
+    <AssemblyName>NativeThemeDemo</AssemblyName>
+    <RootNamespace>NativeThemeDemo</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The smallest working app: Avalloy.Desktop alone (plumbing and the native theme engine),
+       and nothing else in the build graph. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Desktop\Avalloy.Desktop.csproj" />
+  </ItemGroup>
+</Project>

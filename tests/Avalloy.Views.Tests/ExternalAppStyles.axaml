@@ -1,0 +1,9 @@
+<!-- An app's style sheet, compiled in an assembly other than Avalloy.Desktop, including SlimScrollBars the way its
+     docs say to. If that way stops compiling across assemblies, this file fails the build, which is the point: the
+     URI form (StyleInclude avares://) never did, and the docs said it would. -->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:themes="using:Avalloy.Themes"
+        x:Class="Avalloy.Views.Tests.ExternalAppStyles">
+    <themes:SlimScrollBars/>
+</Styles>

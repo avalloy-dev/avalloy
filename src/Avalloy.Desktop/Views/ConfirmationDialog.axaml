@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="170"
+        x:Class="Avalloy.Views.ConfirmationDialog"
+        SizeToContent="WidthAndHeight"
+        MinWidth="360"
+        MaxWidth="540"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        WindowDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        Title="">
+
+  <!-- No native chrome (SystemDecorations=None): the window is transparent and
+       this card paints the body, its own rounded corners, and a soft shadow to
+       replace the OS frame/shadow we gave up. The Margin leaves room for the
+       shadow to render without being clipped at the window edge. -->
+  <Border x:Name="Card"
+          Margin="18"
+          Padding="20"
+          CornerRadius="10"
+          Background="{DynamicResource Surface.Window}"
+          BorderBrush="{DynamicResource Seam}"
+          BorderThickness="1"
+          BoxShadow="0 6 20 0 #2B000000"
+          PointerPressed="OnCardPointerPressed">
+    <StackPanel Spacing="14">
+      <TextBlock Name="TitleText"
+                 FontSize="14"
+                 FontWeight="SemiBold"
+                 Foreground="{DynamicResource Text.Primary}"
+                 TextWrapping="Wrap"/>
+      <TextBlock Name="MessageText"
+                 FontSize="12"
+                 Foreground="{DynamicResource Text.Secondary}"
+                 TextWrapping="Wrap"/>
+      <CheckBox Name="SuppressCheckbox"
+                Content="Don't show this again"
+                IsVisible="False"/>
+      <StackPanel Orientation="Horizontal"
+                  HorizontalAlignment="Right"
+                  Spacing="8"
+                  Margin="0,6,0,0">
+        <Button Name="CancelButton"
+                Content="Cancel"
+                MinWidth="80"
+                Click="OnCancelClick"
+                IsCancel="True"/>
+        <!-- Optional middle button for three-way prompts (Cancel / Alternate /
+             Primary). Hidden unless AskThreeWayAsync opts it in. -->
+        <Button Name="AltButton"
+                MinWidth="80"
+                Click="OnAltClick"
+                IsVisible="False"/>
+        <!-- The accent style class drives both the fill
+             and the foreground (OnAccent slot) — picks a readable label
+             colour against the accent automatically, so we don't hand-pick
+             Background/Foreground here. theme-solid = filled emphasis,
+             matching the "default action" convention. -->
+        <Button Name="ConfirmButton"
+                Content="Confirm"
+                Classes="theme-solid accent"
+                MinWidth="80"
+                Click="OnConfirmClick"
+                IsDefault="True"/>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

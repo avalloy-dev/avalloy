@@ -1,0 +1,521 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:Avalloy.Views.Controls"
+                    xmlns:icons="using:Avalloy.Icons">
+
+    <!-- ═══ Canonical dropdown — zero new tokens. ═══
+         AlloyDropDown = the anchored frame for RICH popovers (action menus, palettes; rows via the .ddrow
+         vocabulary in ControlStyles.axaml). AlloySelect = the single-select variant on a native ComboBox. -->
+
+    <!-- AlloyDropDown — trigger slot + popoverframe surface (chrome class in ControlStyles.axaml; inner
+         r11 clip so full-bleed bars — palette search wells — don't leak across the 1px r12 corner).
+         Trigger toggling + F4/Alt+Down/Escape live in AlloyDropDown.cs. -->
+    <ControlTheme x:Key="{x:Type controls:AlloyDropDown}" TargetType="controls:AlloyDropDown">
+        <!-- Hug the trigger (like AlloySelect): stretched in a vertical stack, the popup would align to the
+             control's far left edge instead of under the visible chip. -->
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <Button x:Name="PART_Trigger" Classes="bare" Content="{TemplateBinding Trigger}"
+                            HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center"/>
+                    <!-- The frame's Menu.ShadowRoom margin is room for the painted Menu.Shadow (popup hosts
+                         clip to content size). Avalonia (12.1.3+) places a popup by its child's visible
+                         bounds, ignoring that margin, so PopoverOffset is the visible gap as-is. MinWidth is
+                         set in AlloyDropDown.cs (trigger width + room). -->
+                    <Popup x:Name="PART_Popup" Placement="{TemplateBinding Placement}"
+                           VerticalOffset="{TemplateBinding PopoverOffset}"
+                           InheritsTransform="True"
+                           IsLightDismissEnabled="True" IsOpen="{TemplateBinding IsOpen, Mode=TwoWay}">
+                        <Border x:Name="PART_Frame" Classes="popoverframe" Width="{TemplateBinding PopoverWidth}"
+                                Margin="{StaticResource Menu.ShadowRoom}">
+                            <Border Background="{DynamicResource Menu.Bg}" CornerRadius="11" ClipToBounds="True">
+                                <ContentPresenter Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                            </Border>
+                        </Border>
+                    </Popup>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+    <!-- DrawerPull — the gold drawer-pull tab on a seam (sidebar rail expander, folded loom strip).
+         Edge picks the directional shadow (casts INTO the neighbouring pane; fixed per seam), PointsLeft
+         picks the chevron (may flip at runtime — the sidebar's does). Seam-centering margin and reveal
+         (opacity/hit-test) belong to the usage site — see DrawerPull.cs. Chevron gold: the design doc's
+         "Accent #c79a5f" is the eyebrow gold, not the rust Accent. -->
+    <ControlTheme x:Key="{x:Type controls:DrawerPull}" TargetType="controls:DrawerPull">
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="46"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="PART_Tab" Background="{DynamicResource Surface.Raised}"
+                        BorderBrush="{DynamicResource Edge.Card}" BorderThickness="{DynamicResource Edge.Hairline}"
+                        CornerRadius="9" BoxShadow="{DynamicResource Shadow.Drawer}">
+                    <TextBlock x:Name="PART_Chevron" Text="›" Foreground="{DynamicResource Accent.Gold}"
+                               FontSize="14" FontWeight="SemiBold" Margin="0,0,0,2"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^[Edge=Right] /template/ Border#PART_Tab">
+            <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Drawer.Left}"/>
+        </Style>
+        <Style Selector="^[PointsLeft=True] /template/ TextBlock#PART_Chevron">
+            <Setter Property="Text" Value="‹"/>
+        </Style>
+    </ControlTheme>
+
+    <!-- AlloySelect rows (spec "Rows"): r8 · 10,8 padding · ≈34 high · hover/selected Surface.Raised2 ·
+         trailing Ok check on the selection. :focus is the keyboard cursor while the list is open. -->
+    <ControlTheme x:Key="AlloySelectItemTheme" TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="Bd" CornerRadius="8" Padding="10,8" MinHeight="34" Background="Transparent">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ContentPresenter Name="PART_ContentPresenter" Grid.Column="0"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          VerticalAlignment="Center"/>
+                        <icons:GlyphIcon x:Name="Check" Grid.Column="1" Glyph="Check" Size="15" Margin="11,0,0,0"
+                                            Foreground="{DynamicResource Ok}" VerticalAlignment="Center"
+                                            IsVisible="False"/>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^:pointerover /template/ Border#Bd">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        </Style>
+        <Style Selector="^:focus /template/ Border#Bd">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        </Style>
+        <Style Selector="^:selected /template/ Border#Bd">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        </Style>
+        <Style Selector="^:selected /template/ icons|GlyphIcon#Check">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.45"/>
+        </Style>
+    </ControlTheme>
+
+    <!-- AlloySelect — native ComboBox behavior under the spec trigger: Surface.Raised field, Edge.Control edge,
+         r9, ≈36 high, 13/600 label, optional 9×9 value dot (placeholder ring when empty), 15px jelly caret
+         pointing down at rest / up while open (.15s turn). States per the handoff table. -->
+    <ControlTheme x:Key="{x:Type controls:AlloySelect}" TargetType="controls:AlloySelect">
+        <Setter Property="ItemContainerTheme" Value="{StaticResource AlloySelectItemTheme}"/>
+        <Setter Property="MaxDropDownHeight" Value="280"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusAdorner" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <!-- v7 combo treatment: Combo.Bg fill + Field.Hairline drawn as an INSET BoxShadow —
+                         no BorderBrush/Thickness, so the focus ring never shifts layout. -->
+                    <Border x:Name="Chip" MinHeight="36" CornerRadius="{DynamicResource Radius.Field}" Padding="11,9"
+                            Background="{DynamicResource Combo.Bg}" BoxShadow="{DynamicResource Field.Rest.Shadow}">
+                        <!-- Grid (not a horizontal StackPanel) so the label fills and the caret pins to the RIGHT
+                             edge when the control is given a fixed Width — otherwise the caret hugs the text and
+                             leaves a gap. Collapsed (IsVisible=false) dot/icon columns take no space. -->
+                        <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,Auto,*,Auto">
+                            <Panel Grid.Column="0" Width="9" Height="9" VerticalAlignment="Center" Margin="0,0,10,0"
+                                   IsVisible="{TemplateBinding HasDot}">
+                                <Ellipse x:Name="ValueDot" Width="9" Height="9"
+                                         Fill="{TemplateBinding TriggerDot}"/>
+                                <Ellipse x:Name="PlaceholderRing" Width="9" Height="9" StrokeThickness="1.5"
+                                         Stroke="{DynamicResource Text.Ghost}" IsVisible="False"/>
+                            </Panel>
+                            <icons:GlyphIcon Grid.Column="1" x:Name="TriggerIcon" Glyph="{TemplateBinding TriggerGlyphEffective}" Size="14"
+                                                VerticalAlignment="Center" Margin="0,0,10,0"
+                                                Foreground="{TemplateBinding TriggerGlyphBrush}"
+                                                IsVisible="{TemplateBinding TriggerGlyphEffective,
+                                                            Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <TextBlock Grid.Column="2" x:Name="Label" Text="{TemplateBinding TriggerLabel}" FontSize="13"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource Text.Primary}"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <icons:GlyphIcon Grid.Column="3" x:Name="Caret" Glyph="Chevron" Size="15" VerticalAlignment="Center"
+                                                Margin="10,0,0,0" Foreground="{DynamicResource Text.Muted}"
+                                                RenderTransform="rotate(180deg)">
+                                <icons:GlyphIcon.Transitions>
+                                    <Transitions>
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.15"/>
+                                    </Transitions>
+                                </icons:GlyphIcon.Transitions>
+                            </icons:GlyphIcon>
+                        </Grid>
+                    </Border>
+                    <!-- VerticalOffset is the visible gap: Avalonia (12.1.3+) ignores the frame's
+                         Menu.ShadowRoom margin when placing the popup. MinWidth is set in AlloySelect.cs
+                         (trigger width + room). -->
+                    <Popup Name="PART_Popup" InheritsTransform="True"
+                           IsOpen="{TemplateBinding IsDropDownOpen, Mode=TwoWay}"
+                           Placement="BottomEdgeAlignedLeft" VerticalOffset="6"
+                           PlacementTarget="Chip"
+                           IsLightDismissEnabled="True">
+                        <Border Classes="popoverframe" Padding="6" Width="{TemplateBinding PopoverWidth}"
+                                Margin="{StaticResource Menu.ShadowRoom}"
+                                MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                          IsScrollChainingEnabled="False">
+                                <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Hover: raise the fill one step (v7: no colour shift, no accent edge); caret lightens. -->
+        <Style Selector="^:pointerover /template/ Border#Chip">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Hover.Shadow}"/>
+        </Style>
+        <Style Selector="^:pointerover /template/ icons|GlyphIcon#Caret">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        </Style>
+        <!-- Keyboard focus: the Field focus ring (accent inset hairline + soft blurred glow). -->
+        <Style Selector="^:focus-visible /template/ Border#Chip">
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Focus.Shadow}"/>
+        </Style>
+        <!-- Open: focus ring + raised fill, caret turns up and takes the accent. -->
+        <Style Selector="^:dropdownopen /template/ Border#Chip">
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Focus.Shadow}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        </Style>
+        <Style Selector="^:dropdownopen /template/ icons|GlyphIcon#Caret">
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+        </Style>
+        <!-- Placeholder (no value): muted label; the dot slot shows the 1.5px ring instead of a fill. -->
+        <Style Selector="^:placeholder /template/ TextBlock#Label">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        </Style>
+        <Style Selector="^:placeholder /template/ Ellipse#ValueDot">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="^:placeholder /template/ Ellipse#PlaceholderRing">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="^:disabled /template/ Border#Chip">
+            <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+
+        <!-- .composer — the composer-chip-bar size variant: matches Border.composerchip's metrics exactly
+             (32 high · 10,4 pad · r8 · 11/600 Text.Secondary label · 9px chevron) so a AlloySelect sits
+             flush beside the hand-rolled model/approval/agents chips in ComposerView's bar. -->
+        <Style Selector="^.composer /template/ Border#Chip">
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+        <Style Selector="^.composer /template/ StackPanel">
+            <Setter Property="Spacing" Value="6"/>
+        </Style>
+        <Style Selector="^.composer /template/ TextBlock#Label">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        </Style>
+        <Style Selector="^.composer /template/ icons|GlyphIcon#TriggerIcon">
+            <Setter Property="Size" Value="12"/>
+        </Style>
+        <Style Selector="^.composer /template/ icons|GlyphIcon#Caret">
+            <Setter Property="Size" Value="9"/>
+        </Style>
+    </ControlTheme>
+
+    <!-- ═══ Canonical textbox — zero new tokens. ═══
+         AlloyTextBox = restyled NATIVE TextBox under the spec anatomy: uppercase label above · Surface.Raised
+         field (r9 · 12,9 pad · ≈38 high · gap 9) with leading glyph / clear / status / stepper / full-bleed
+         affix slots · helper below. Handoff→code token deltas (code wins): read-only value "Text.Body" →
+         Text.Secondary; well glass + footer/counter "Text.Ghost" → Text.Muted (Faint stays disabled-only);
+         soft typing glow = the ring-shaped Option.Focus.Ring BoxShadows (Accent @20%). -->
+    <ControlTheme x:Key="{x:Type controls:AlloyTextBox}" TargetType="controls:AlloyTextBox">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Accent}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource Accent.Tint}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Padding" Value="12,9"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusAdorner" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <StackPanel>
+                    <TextBlock x:Name="PART_Label" Text="{TemplateBinding Label}" Margin="0,0,0,7"
+                               FontSize="9" FontWeight="SemiBold" LetterSpacing="0.54"
+                               Foreground="{DynamicResource Text.Secondary}"
+                               IsVisible="{TemplateBinding Label,
+                                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    <!-- v7 field treatment: inset well (Field.Bg) + Field.Hairline as an INSET BoxShadow —
+                         no BorderBrush/Thickness, so focus never shifts layout. -->
+                    <Border x:Name="PART_FieldBorder" MinHeight="38" CornerRadius="{DynamicResource Radius.Field}"
+                            Background="{DynamicResource Field.Bg}"
+                            BoxShadow="{DynamicResource Field.Rest.Shadow}">
+                        <!-- Inner r8 clip so the full-bleed affix segments don't leak across the r9 corner
+                             (the AlloyDropDown frame/clip trick). -->
+                        <Border x:Name="FieldClip" CornerRadius="8" ClipToBounds="True">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <Border x:Name="PrefixSeg" Grid.Column="0" Padding="11,0"
+                                        Background="{DynamicResource Surface.Pane2}"
+                                        BorderBrush="{DynamicResource Divider}" BorderThickness="0,0,1,0"
+                                        IsVisible="{TemplateBinding Prefix,
+                                                    Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    <TextBlock Text="{TemplateBinding Prefix}" VerticalAlignment="Center"
+                                               FontFamily="{DynamicResource Font.Mono}" FontSize="13" FontWeight="Medium"
+                                               Foreground="{DynamicResource Text.Secondary}"/>
+                                </Border>
+                                <Grid Grid.Column="1" Margin="{TemplateBinding Padding}" RowDefinitions="*,Auto">
+                                    <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
+                                        <icons:GlyphIcon x:Name="LeadGlyph" Grid.Column="0" Size="15" Margin="0,0,9,0"
+                                                            Glyph="{TemplateBinding LeadingGlyph}"
+                                                            Foreground="{DynamicResource Text.Secondary}"
+                                                            VerticalAlignment="Center"
+                                                            IsVisible="{TemplateBinding LeadingGlyph,
+                                                                        Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        <ScrollViewer Name="PART_ScrollViewer" Grid.Column="1"
+                                                      HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                                      VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                                                      IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
+                                                      AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}"
+                                                      BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}">
+                                            <Panel>
+                                                <TextBlock Name="PART_Watermark" Text="{TemplateBinding PlaceholderText}"
+                                                           Foreground="{DynamicResource Field.Placeholder}"
+                                                           TextAlignment="{TemplateBinding TextAlignment}"
+                                                           TextWrapping="{TemplateBinding TextWrapping}"
+                                                           IsVisible="{TemplateBinding Text,
+                                                                       Converter={x:Static StringConverters.IsNullOrEmpty}}"
+                                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                <TextPresenter Name="PART_TextPresenter"
+                                                               Text="{TemplateBinding Text, Mode=TwoWay}"
+                                                               CaretIndex="{TemplateBinding CaretIndex}"
+                                                               SelectionStart="{TemplateBinding SelectionStart}"
+                                                               SelectionEnd="{TemplateBinding SelectionEnd}"
+                                                               TextAlignment="{TemplateBinding TextAlignment}"
+                                                               TextWrapping="{TemplateBinding TextWrapping}"
+                                                               LineHeight="{TemplateBinding LineHeight}"
+                                                               LetterSpacing="{TemplateBinding LetterSpacing}"
+                                                               PasswordChar="{TemplateBinding PasswordChar}"
+                                                               RevealPassword="{TemplateBinding RevealPassword}"
+                                                               SelectionBrush="{TemplateBinding SelectionBrush}"
+                                                               SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                                                               CaretBrush="{TemplateBinding CaretBrush}"
+                                                               CaretBlinkInterval="{TemplateBinding CaretBlinkInterval}"
+                                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Panel>
+                                        </ScrollViewer>
+                                        <Button x:Name="PART_Clear" Grid.Column="2" Classes="bare" Margin="9,0,0,0"
+                                                Focusable="False" VerticalAlignment="Center" IsVisible="False">
+                                            <icons:GlyphIcon x:Name="ClearGlyph" Glyph="Close" Size="14"
+                                                                Foreground="{DynamicResource Text.Secondary}"/>
+                                        </Button>
+                                        <icons:GlyphIcon x:Name="ErrorGlyph" Grid.Column="3" Glyph="Warning" Size="15"
+                                                            Margin="9,0,0,0" Foreground="{DynamicResource Danger}"
+                                                            VerticalAlignment="Center" IsVisible="False"/>
+                                        <icons:GlyphIcon x:Name="ValidGlyph" Grid.Column="3" Glyph="Success" Size="15"
+                                                            Margin="9,0,0,0" Foreground="{DynamicResource Ok}"
+                                                            VerticalAlignment="Center" IsVisible="False"/>
+                                        <StackPanel Grid.Column="4" Margin="9,0,0,0" Spacing="2" VerticalAlignment="Center"
+                                                    IsVisible="{TemplateBinding Stepper}">
+                                            <Button x:Name="PART_StepUp" Classes="bare" Focusable="False">
+                                                <Border Classes="stepbtn">
+                                                    <TextBlock Text="+"/>
+                                                </Border>
+                                            </Button>
+                                            <Button x:Name="PART_StepDown" Classes="bare" Focusable="False">
+                                                <Border Classes="stepbtn">
+                                                    <TextBlock Text="−"/>
+                                                </Border>
+                                            </Button>
+                                        </StackPanel>
+                                        <!-- Trailing slot (spec anatomy #4): arbitrary content flush right inside the
+                                             field — a count label, an esc / ⌘K keycap, a unit. Null = collapsed. -->
+                                        <ContentPresenter x:Name="PART_Trailing" Grid.Column="5" Margin="9,0,0,0"
+                                                          Content="{TemplateBinding Trailing}"
+                                                          VerticalAlignment="Center"
+                                                          IsVisible="{TemplateBinding Trailing,
+                                                                      Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1" Margin="0,8,0,0" ColumnDefinitions="*,Auto"
+                                          IsVisible="{TemplateBinding HasFooter}">
+                                        <TextBlock Grid.Column="0" Text="{TemplateBinding FooterHint}"
+                                                   FontFamily="{DynamicResource Font.Mono}" FontSize="11" FontWeight="Medium"
+                                                   Foreground="{DynamicResource Text.Muted}"/>
+                                        <TextBlock Grid.Column="1" Text="{TemplateBinding CounterText}"
+                                                   IsVisible="{TemplateBinding ShowCounter}" Margin="9,0,0,0"
+                                                   FontFamily="{DynamicResource Font.Mono}" FontSize="11" FontWeight="Medium"
+                                                   Foreground="{DynamicResource Text.Muted}"/>
+                                    </Grid>
+                                </Grid>
+                                <Border x:Name="SuffixSeg" Grid.Column="2" Padding="11,0"
+                                        Background="{DynamicResource Surface.Pane2}"
+                                        BorderBrush="{DynamicResource Divider}" BorderThickness="1,0,0,0"
+                                        IsVisible="{TemplateBinding Suffix,
+                                                    Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    <TextBlock Text="{TemplateBinding Suffix}" VerticalAlignment="Center"
+                                               FontFamily="{DynamicResource Font.Mono}" FontSize="13" FontWeight="Medium"
+                                               Foreground="{DynamicResource Text.Secondary}"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </Border>
+                    <TextBlock x:Name="PART_Helper" Text="{TemplateBinding Helper}" Margin="0,7,0,0"
+                               FontSize="11.5" FontWeight="Medium" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Text.Secondary}"
+                               IsVisible="{TemplateBinding Helper,
+                                           Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Stepper chip (spec: 20×15 · r5 · Surface.Pane2 on Edge.Control · mono 9/700). -->
+        <Style Selector="^ /template/ Border.stepbtn">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="15"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Radius.Badge}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource Edge.Hairline}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Pane2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Edge.Control}"/>
+        </Style>
+        <Style Selector="^ /template/ Border.stepbtn TextBlock">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="^ /template/ Button:pointerover Border.stepbtn">
+            <Setter Property="Background" Value="{DynamicResource Surface.Raised2}"/>
+        </Style>
+
+        <!-- Clear affix: only while there's a value (the :canclear pseudo-class); brightens on hover. -->
+        <Style Selector="^:canclear /template/ Button#PART_Clear">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="^ /template/ Button#PART_Clear:pointerover icons|GlyphIcon#ClearGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        </Style>
+
+        <!-- Hover: lift the hairline one notch (v7: no colour shift). -->
+        <Style Selector="^:pointerover /template/ Border#PART_FieldBorder">
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Hover.Shadow}"/>
+        </Style>
+        <!-- Focus/typing: the Field focus ring — accent inset hairline + soft blurred glow (rest hairline drops). -->
+        <Style Selector="^:focus /template/ Border#PART_FieldBorder">
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Focus.Shadow}"/>
+        </Style>
+        <!-- Error outranks hover/focus (declared after): Danger hairline on Danger.Wash, warning affix,
+             helper flips to the message color. -->
+        <Style Selector="^:error /template/ Border#PART_FieldBorder">
+            <Setter Property="Background" Value="{DynamicResource Danger.Wash}"/>
+            <Setter Property="BoxShadow" Value="{DynamicResource Field.Error.Shadow}"/>
+        </Style>
+        <Style Selector="^:error /template/ icons|GlyphIcon#ErrorGlyph">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <Style Selector="^:error /template/ TextBlock#PART_Helper">
+            <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+        </Style>
+        <Style Selector="^:valid /template/ icons|GlyphIcon#ValidGlyph">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+        <!-- Read-only: sunk to Surface.Pane2, value reads as prose (handoff "Text.Body" → Text.Secondary),
+             no focus treatment. -->
+        <Style Selector="^:readonly">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        </Style>
+        <Style Selector="^:readonly /template/ Border#PART_FieldBorder">
+            <Setter Property="Background" Value="{DynamicResource Surface.Pane2}"/>
+            <Setter Property="BoxShadow" Value="0 0 0 0 Transparent"/>
+        </Style>
+        <Style Selector="^:readonly:focus /template/ Border#PART_FieldBorder">
+            <Setter Property="BoxShadow" Value="0 0 0 0 Transparent"/>
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Ghost}"/>
+        </Style>
+        <!-- Disabled: fade the well (v7 spec .5), keep the rest hairline, never a ring. -->
+        <Style Selector="^:disabled /template/ Border#PART_FieldBorder">
+            <Setter Property="Opacity" Value="0.5"/>
+        </Style>
+
+        <!-- sm: 32 high · 10,7 pad · value 13. -->
+        <Style Selector="^.sm">
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="^.sm /template/ Border#PART_FieldBorder">
+            <Setter Property="MinHeight" Value="32"/>
+        </Style>
+
+        <!-- Search well: the standard v7 field treatment (Field.Bg well + hairline via the base styles);
+             only the quiet glass + clear glyphs differ (handoff "Text.Ghost" → Text.Muted). -->
+        <Style Selector="^.search">
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="^.search /template/ icons|GlyphIcon#LeadGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        </Style>
+        <Style Selector="^.search /template/ icons|GlyphIcon#ClearGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        </Style>
+
+        <!-- Bare field — the sidebar's quiet inline search (7a). v7 "Borders: affordance in" retired the
+             no-ring exception: it now takes the standard field treatment (Field.Bg well + hairline + focus
+             ring via the base styles); only the quiet glyphs + accent wake remain. Pair with .sm for height. -->
+        <Style Selector="^.bare">
+            <Setter Property="CaretBrush" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="^.bare /template/ icons|GlyphIcon#LeadGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        </Style>
+        <Style Selector="^.bare:focus /template/ icons|GlyphIcon#LeadGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="^.bare:focus /template/ TextBlock#PART_Watermark">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        </Style>
+        <Style Selector="^.bare /template/ icons|GlyphIcon#ClearGlyph">
+            <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        </Style>
+
+        <!-- Textarea: r10 · 13,12 pad · 1.55 line-height · wraps and grows; footer via FooterHint/ShowCounter. -->
+        <Style Selector="^.area">
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Padding" Value="13,12"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="LineHeight" Value="21.5"/>
+        </Style>
+        <Style Selector="^.area /template/ Border#PART_FieldBorder">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        <Style Selector="^.area /template/ Border#FieldClip">
+            <Setter Property="CornerRadius" Value="9"/>
+        </Style>
+
+        <!-- Number: mono value, stepper hugs the right edge tighter (spec 7,8 pad on the trailing side). -->
+        <Style Selector="^.number">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="Padding" Value="12,7,8,7"/>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

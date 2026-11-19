@@ -1,0 +1,113 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Assembly is Avalloy.Desktop so avares:// URIs read
+         "avares://Avalloy.Desktop/...". RootNamespace stays Avalloy
+         so (a) the source keeps its Avalloy.* namespaces
+         and (b) embedded preset logical names stay "Avalloy.Presets.{...}",
+         which consuming apps load by that exact prefix. -->
+    <AssemblyName>Avalloy.Desktop</AssemblyName>
+    <RootNamespace>Avalloy</RootNamespace>
+    <!-- Avalloy.Themes was folded in at 0.23.0: its token dictionaries, control themes and NativeThemeController
+         are Themes/*.axaml and Themes/*.cs here, served as "avares://Avalloy.Desktop/Themes/{file}.axaml" and
+         still in the Avalloy.Themes namespace. They are applied only when an app includes them. -->
+    <Description>The desktop shell for Avalloy apps: the app host and DI wiring, windows, dialogs, toasts, the theme engine, the native token dictionaries, control themes and theme controller, Avalloy's controls and the bundled Lucide icons. Built on Avalloy.Base, which holds preferences, the token cascade, commands and keymaps, and Avalloy.Common.</Description>
+    <PackageTags>avalonia;mvvm;theming;preferences;desktop</PackageTags>
+    <!-- Turns on the trim, single-file and AOT analyzers, so a change that would break a Native AOT app
+         (HermitCrab ships as one) fails here rather than in the app's publish. Reflection that stays is
+         annotated [RequiresUnreferencedCode]/[RequiresDynamicCode], pointing at the overload to use. -->
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Base theme + density presets, embedded as
+         "Avalloy.Presets.{themes|densities}.{file}.json". A consuming
+         app loads them via PresetCatalog.Load(typeof(AvalloyApp).Assembly,
+         "Avalloy.Presets.themes.", userPresetsRoot) to theme out-of-box. -->
+    <EmbeddedResource Include="Presets\**\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Baseline icon packs shipped inside Avalloy.Desktop.dll, addressable as
+         "avares://Avalloy.Desktop/Assets/iconpacks/{pack}/...". Ships raw SVGs
+         (the source) plus the baked "{pack}.icons.axaml" that the GlyphIcon control
+         renders. IconResolver enumerates these so every AvalloyApp has icons out
+         of the box (Lucide, ISC). -->
+    <!-- .axaml is already compiled as AvaloniaXaml (Avalonia's default glob, which also serves it at
+         its avares:// URI); listing it here too would compile it twice, which a baked dictionary
+         with an x:Class refuses. -->
+    <AvaloniaResource Include="Assets\**" Exclude="Assets\**\*.axaml" />
+  </ItemGroup>
+
+  <!-- (Re)bake the bundled Lucide pack from its source SVGs on build (incremental).
+       Baked output is checked in, so consumers never run the tool. See ADR 0001. -->
+  <Import Project="..\..\build\iconpacks.targets" />
+  <ItemGroup>
+    <IconPack Include="lucide">
+      <Name>Lucide</Name>
+      <SrcDir>$(MSBuildProjectDirectory)\Assets\iconpacks\lucide</SrcDir>
+      <OutDir>$(MSBuildProjectDirectory)\Assets\iconpacks\lucide</OutDir>
+      <DuoDir></DuoDir>
+      <!-- Curated role aliases (Chevron/Check/Close/Warning/Success + shell staples) — the
+           Alloy control templates reference roles, so the baseline pack must bake them. -->
+      <Roles>$(MSBuildProjectDirectory)\Assets\iconpacks\lucide\icons.md</Roles>
+      <Description>Lucide (ISC)</Description>
+      <Homepage>https://lucide.dev</Homepage>
+      <Version>0.2.0</Version>
+      <!-- Compiled to a class so AvalloyIconPacks.Lucide constructs it directly: no XAML loaded by URI. -->
+      <Class>Avalloy.Icons.LucideIcons</Class>
+      <ClassModifier>internal</ClassModifier>
+    </IconPack>
+    <IconPackInput Include="$(MSBuildProjectDirectory)\Assets\iconpacks\lucide\*.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Avalloy.Common, the plain-.NET floor: IUserNotifier (ToastService implements it) and AppPaths (every
+         folder Desktop writes to), CliRunner and LoginShellPath (AvalloyApp resolves the login shell's PATH at
+         startup), the logging stack Desktop wires up for an app, and the pure-BCL SVG baker that materializes
+         user-installed icon packs (bundled packs load their pre-baked .icons.axaml instead; see ADR 0001).
+         Desktop is where the contracts are IMPLEMENTED and registered; headless packages consume them without
+         it. Base references it too; it is listed here because Desktop's own code uses it directly. -->
+    <ProjectReference Include="..\Avalloy.Common\Avalloy.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Preferences, the token cascade, commands, keymaps and the palette view model: everything here that
+         needs no desktop. Desktop's consumers get it through this reference. -->
+    <ProjectReference Include="..\Avalloy.Base\Avalloy.Base.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Avalloy.Desktop.Tests" />
+    <!-- The headless view tests construct internal compiled XAML (TabStripStyles). -->
+    <InternalsVisibleTo Include="Avalloy.Views.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.6" />
+    <!-- Desktop's own code calls neither of these two; its consumers do. An app's Program builds on
+         UsePlatformDetect and its App.axaml declares FluentTheme, and both have always arrived through this
+         package. -->
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.6" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" />
+    <!-- Pin / lock glyphs in the TabStrip control template render icon-pack SVGs. -->
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="12.0.0.17" />
+    <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

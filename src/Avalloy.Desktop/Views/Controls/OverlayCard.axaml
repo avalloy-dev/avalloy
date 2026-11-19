@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Avalloy.Views.Controls.OverlayCard"
+             x:Name="Root">
+  <!-- The .overlaycard shell (Surface.Window + soft border + radius + popover shadow) comes from
+       Avalloy.Themes/ControlStyles.axaml. Header / Body / Footer are stacked content slots; the ✕ FLOATS over
+       the card's top-right (so it never pushes content down) and raises CloseRequested (the host dismisses). -->
+  <Border Classes="overlaycard">
+    <Panel>
+      <Grid RowDefinitions="Auto,*,Auto">
+        <ContentPresenter Grid.Row="0" Content="{Binding #Root.Header}"/>
+        <ContentPresenter Grid.Row="1" Content="{Binding #Root.Body}"/>
+        <!-- A null Footer presenter contributes no size, so the Auto row collapses — no IsVisible needed. -->
+        <ContentPresenter Grid.Row="2" Content="{Binding #Root.Footer}"/>
+      </Grid>
+
+      <Button Classes="overlayclose" Click="OnCloseClick"
+              IsVisible="{Binding #Root.ShowClose}"
+              HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0"
+              Content="✕" ToolTip.Tip="Close"/>
+    </Panel>
+  </Border>
+</UserControl>

@@ -1,0 +1,5 @@
+{
+  // The docs site is a Node project, not a package: keep it out of project detection so
+  // rig, changerig and shiprig never version, tag or build it.
+  "exclude": ["site"]
+}

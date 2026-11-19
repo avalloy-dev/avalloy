@@ -1,0 +1,32 @@
+<Project>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Everything under src/ is shipped. Individual projects opt back out
+       (Avalloy.IconTool packs as a dotnet tool, on its own terms). -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <!-- XML docs ride along in the package: these assemblies are consumed as compiled
+         references, so the doc comments explaining the seams are the only design notes
+         a consumer ever sees. CS1591 off — undocumented publics are not worth failing
+         a build over. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Doc-completeness diagnostics, all off. Turning docs on lit up 82 of these at
+         once, and they are style, not defects: this codebase documents the parameters
+         that carry design intent and skips the obvious ones (CS1573/1591), and many
+         crefs deliberately name things outside the assembly — ThemeService from Desktop,
+         private fields, the consuming app's MainWindow (CS1574/0419/1734/1587).
+         Left on, 82 permanent warnings would bury a real one.
+         TODO: a pass rewriting the out-of-assembly crefs as <c>…</c> would let
+         CS1574 come back on, which is the one here with actual value. -->
+    <NoWarn>$(NoWarn);CS1591;CS1573;CS1574;CS1587;CS1734;CS0419</NoWarn>
+  </PropertyGroup>
+
+  <!-- Every package carries the third-party notices: Lucide's ISC/MIT license has to travel
+       with the icons Desktop ships. One file for all of them is simpler than tracking which
+       package bundles what. -->
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,48 @@
+<Project>
+  <!--
+    Shared MSBuild target that (re)bakes icon packs from their source SVGs into a
+    baked <id>.icons.axaml + pack.json, via Avalloy.IconTool. Import this
+    and declare one <IconPack> item per pack, plus an <IconPackInput> glob of that
+    pack's SVGs for incrementality. Avalloy.Desktop's own Lucide pack is the worked example.
+
+      <Import Project="..\..\build\iconpacks.targets" />
+      <ItemGroup>
+        <IconPack Include="lucide">
+          <Name>Lucide</Name>
+          <SrcDir>$(MSBuildProjectDirectory)\Assets\iconpacks\lucide</SrcDir>
+          <OutDir>$(MSBuildProjectDirectory)\Assets\iconpacks\lucide</OutDir>
+          <DuoDir></DuoDir>            (optional: parallel dir of lit duotone layers)
+          <Roles></Roles>              (optional: an icons.md role table for curated aliases)
+          <Description>Lucide (ISC)</Description>
+          <Homepage>https://lucide.dev</Homepage>
+          <Version>0.2.0</Version>
+          <Class></Class>              (optional: compile the dictionary to this class — x:Class —
+                                        so the app constructs it instead of loading it by URI)
+          <ClassModifier></ClassModifier> (optional: that class's accessibility, e.g. internal)
+        </IconPack>
+        <IconPackInput Include="$(MSBuildProjectDirectory)\Assets\iconpacks\lucide\*.svg" />
+      </ItemGroup>
+
+    The baked outputs are checked in, so downstream consumers never run the tool.
+    The target is incremental (Inputs/Outputs), and skipped entirely when no
+    <IconPack> items are declared.
+  -->
+  <PropertyGroup>
+    <IconToolProject Condition="'$(IconToolProject)' == ''">$(MSBuildThisFileDirectory)..\src\Avalloy.IconTool\Avalloy.IconTool.csproj</IconToolProject>
+  </PropertyGroup>
+
+  <!-- SkipBakeIconPacks=true is for CI. The baked output is checked in, so a build never needs
+       the bake; but git gives a fresh checkout arbitrary timestamps, so MSBuild can judge the
+       output stale and run the tool project from INSIDE the solution build, while the same
+       solution build is compiling that very assembly. Windows refuses the shared write, and the
+       leg fails on a file lock that has nothing to do with the change. -->
+  <Target Name="BakeIconPacks"
+          BeforeTargets="BeforeBuild"
+          Condition="'@(IconPack)' != '' And '$(SkipBakeIconPacks)' != 'true'"
+          Inputs="@(IconPackInput);$(MSBuildThisFileDirectory)..\src\Avalloy.IconTool\Program.cs;$(MSBuildThisFileDirectory)..\src\Avalloy.Common\Icons\SvgFlattener.cs;$(MSBuildThisFileDirectory)..\src\Avalloy.Common\Icons\IconBaker.cs;$(MSBuildThisFileDirectory)..\src\Avalloy.Common\Icons\IconPackWriter.cs"
+          Outputs="@(IconPack->'%(OutDir)\%(Identity).icons.axaml')">
+    <Message Importance="high" Text="Baking icon pack '%(IconPack.Identity)' from %(IconPack.SrcDir)" />
+    <Exec WorkingDirectory="$(MSBuildThisFileDirectory)"
+          Command="dotnet run --project &quot;$(IconToolProject)&quot; -c Release --no-launch-profile -- create --id %(IconPack.Identity) --name &quot;%(IconPack.Name)&quot; --src &quot;%(IconPack.SrcDir)&quot; --out &quot;%(IconPack.OutDir)&quot; --duo &quot;%(IconPack.DuoDir)&quot; --roles &quot;%(IconPack.Roles)&quot; --desc &quot;%(IconPack.Description)&quot; --homepage &quot;%(IconPack.Homepage)&quot; --version &quot;%(IconPack.Version)&quot; --class &quot;%(IconPack.Class)&quot; --class-modifier &quot;%(IconPack.ClassModifier)&quot;" />
+  </Target>
+</Project>

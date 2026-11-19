@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Microsoft Testing Platform + MSTest, matching the other suites. Avalloy.Common was four packages until
+         0.23.0, and so was this suite: AppPaths at the root (pure computation), Cli/, Logging/ (no dispatcher
+         anywhere: the ring's flush goes through the LogBuffer uiPost seam, and the file tests write real files
+         under temp) and Icons/ (pure BCL). No Avalonia.Headless. -->
+    <EnableMicrosoftTestingPlatform>true</EnableMicrosoftTestingPlatform>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+    <!-- Cli's budget, the largest of the four: its tests deliberately spawn children that outlive their budget
+         and then assert the tree really died, which takes real seconds of waiting no fake can supply. -->
+    <TestingPlatformCommandLineArguments>--timeout 90s</TestingPlatformCommandLineArguments>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.5.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.5.3" />
+    <!-- A real LoggerFactory to route through the providers under test; the package itself takes only
+         the abstractions. -->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Common\Avalloy.Common.csproj" />
+  </ItemGroup>
+</Project>

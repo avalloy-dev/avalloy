@@ -1,0 +1,13 @@
+{
+  // Avalloy default — dark variant. Paired with avalloy-light.
+  "name": "avalloy-dark",
+  "displayName": "Avalloy (Dark)",
+  "kind": "theme",
+  "variant": "dark",
+  "tokens": {
+    "AlloyAccentRamp":                "Blue",
+    "AlloyAccentBrush":               "#4D9BFF",
+    "AlloyAccentSelectionBrush":      "#0064E1",
+    "AlloyAccentSelectionForeground": "#FFFFFF"
+  }
+}

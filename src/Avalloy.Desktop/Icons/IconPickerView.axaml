@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:icons="using:Avalloy.Icons"
+             x:Class="Avalloy.Icons.IconPickerView"
+             x:DataType="icons:IconPickerViewModel"
+             x:CompileBindings="True">
+    <UserControl.Styles>
+        <!-- One glyph cell: a bare hit-target that highlights on hover; the GlyphIcon
+             inside flips to its duotone (for packs that ship duotone layers). Apps can
+             restyle Button.iconcell / icons|GlyphIcon to match their theme. -->
+        <Style Selector="Button.iconcell">
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.iconcell:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Width="360" Padding="14,12"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1" CornerRadius="8">
+        <DockPanel>
+            <!-- Search -->
+            <TextBox DockPanel.Dock="Top" PlaceholderText="Search icons…"
+                     Text="{Binding Search, Mode=TwoWay}" Margin="0,0,0,10"/>
+
+            <!-- App-supplied footer (e.g. upload image / use monogram). Empty by default. -->
+            <ContentControl DockPanel.Dock="Bottom" Margin="0,10,0,0"
+                            Content="{Binding Footer, RelativeSource={RelativeSource AncestorType=icons:IconPickerView}}"/>
+
+            <!-- Glyph grid — the pack's icons (or the current search). -->
+            <ScrollViewer MaxHeight="300" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding Results}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="icons:IconPickItem">
+                            <Button Classes="iconcell" Click="OnPickIcon" Tag="{Binding Id}" ToolTip.Tip="{Binding Id}">
+                                <icons:GlyphIcon Glyph="{Binding Id}" Size="20"
+                                                 Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

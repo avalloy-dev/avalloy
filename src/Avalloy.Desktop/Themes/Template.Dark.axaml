@@ -1,0 +1,173 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- NEUTRAL DARK template. The dark sibling of Template.Light.axaml — same key
+         contract, dark values. Copy + rebrand; keep every key. -->
+
+    <!-- Page & surfaces — v7 ladder (canvas → pane → pane2 → raised → raised2 → active3). Neutral values,
+         renamed from the pre-v7 keys (canvas←backdrop, pane←sidebar, pane2←window, raised←card,
+         raised2←raised, active3←selected) so this template matches the v7 base-style contract. -->
+    <Color x:Key="Surface.Canvas.Color">#161618</Color>
+    <Color x:Key="Surface.Window.Color">#131315</Color>
+    <Color x:Key="Surface.Pane.Color">#161619</Color>
+    <Color x:Key="Surface.Inset.Color">#121214</Color>
+    <Color x:Key="Surface.Pane2.Color">#1C1C1F</Color>
+    <Color x:Key="Surface.Hover.Color">#1F1F23</Color>
+    <Color x:Key="Surface.Raised.Color">#232327</Color>
+    <Color x:Key="Surface.Raised2.Color">#2B2B30</Color>
+    <Color x:Key="Surface.Active3.Color">#2E3650</Color>
+    <Color x:Key="Surface.CodeChip.Color">#34343B</Color>
+    <SolidColorBrush x:Key="Surface.Canvas" Color="{StaticResource Surface.Canvas.Color}"/>
+    <!-- Framing gutter panes float on (v7); dark ladder keeps it below the pane fills. -->
+    <SolidColorBrush x:Key="Surface.Window" Color="{StaticResource Surface.Window.Color}"/>
+    <SolidColorBrush x:Key="Surface.Pane" Color="{StaticResource Surface.Pane.Color}"/>
+    <!-- Recessed input/code well. -->
+    <SolidColorBrush x:Key="Surface.Inset" Color="{StaticResource Surface.Inset.Color}"/>
+    <SolidColorBrush x:Key="Surface.Pane2" Color="{StaticResource Surface.Pane2.Color}"/>
+    <!-- Row-hover fill (rows: rest = pane tone · hover = this · selected = Raised). -->
+    <SolidColorBrush x:Key="Surface.Hover" Color="{StaticResource Surface.Hover.Color}"/>
+    <SolidColorBrush x:Key="Surface.Raised" Color="{StaticResource Surface.Raised.Color}"/>
+    <SolidColorBrush x:Key="Surface.Raised2" Color="{StaticResource Surface.Raised2.Color}"/>
+    <SolidColorBrush x:Key="Surface.Active3" Color="{StaticResource Surface.Active3.Color}"/>
+    <StaticResource x:Key="Surface.Terminal" ResourceKey="Surface.Inset"/>
+    <!-- Code/quote chip background. -->
+    <SolidColorBrush x:Key="Surface.CodeChip" Color="{StaticResource Surface.CodeChip.Color}"/>
+
+    <!-- ── v7 edge grammar — the ONE structural line is Seam (a low-alpha hairline); pane/card/chip
+         edges are Transparent (separation comes from the surface ladder + shadow), and interactive
+         edges (fields, menus) keep a Seam-weight whisper. Views reference the ROLE keys. ── -->
+    <SolidColorBrush x:Key="Seam" Color="#E6E6EB" Opacity="0.08"/>
+    <StaticResource x:Key="Divider" ResourceKey="Seam"/>
+    <StaticResource x:Key="Divider.Strong" ResourceKey="Seam"/>
+    <SolidColorBrush x:Key="Edge.Pane" Color="Transparent"/>
+    <SolidColorBrush x:Key="Edge.PaneStrong" Color="Transparent"/>
+    <SolidColorBrush x:Key="Edge.Quiet" Color="Transparent"/>
+    <SolidColorBrush x:Key="Edge.Card" Color="Transparent"/>
+    <SolidColorBrush x:Key="Edge.Chip" Color="Transparent"/>
+    <StaticResource x:Key="Edge.Control" ResourceKey="Seam"/>
+    <StaticResource x:Key="Edge.ControlHover" ResourceKey="Seam"/>
+    <StaticResource x:Key="Edge.Menu" ResourceKey="Seam"/>
+
+    <!-- ── Field / Combo / Menu (v7 "decoration out, affordance in"). Fields = inset well + Seam-weight
+         hairline drawn as an INSET BoxShadow (never a border, so focus never shifts layout); focus swaps
+         the hairline for the accent ring + soft glow. Menus are borderless on dark (shadow + surface
+         step carry elevation); light adds a rim via Menu.Edge. ── -->
+    <StaticResource x:Key="Field.Bg" ResourceKey="Surface.Inset"/>
+    <StaticResource x:Key="Field.Placeholder" ResourceKey="Text.Muted"/>
+    <SolidColorBrush x:Key="Field.Hairline" Color="#E6E6EB" Opacity="0.08"/>
+    <SolidColorBrush x:Key="Field.Focus.Ring" Color="#6E8EE8"/>
+    <BoxShadows x:Key="Field.Rest.Shadow">inset 0 0 0 1 #14E6E6EB</BoxShadows>
+    <BoxShadows x:Key="Field.Hover.Shadow">inset 0 0 0 1 #1FE6E6EB</BoxShadows>
+    <BoxShadows x:Key="Field.Focus.Shadow">inset 0 0 0 1 #6E8EE8, 0 0 5 1 #336E8EE8</BoxShadows>
+    <BoxShadows x:Key="Row.Focus.Shadow">inset 0 0 0 1.5 #6E8EE8, 0 0 0 3 #296E8EE8</BoxShadows>
+    <BoxShadows x:Key="Field.Error.Shadow">inset 0 0 0 1 #E0685C</BoxShadows>
+    <StaticResource x:Key="Combo.Bg" ResourceKey="Surface.Raised"/>
+    <StaticResource x:Key="Menu.Bg" ResourceKey="Surface.Raised"/>
+    <SolidColorBrush x:Key="Menu.Edge" Color="Transparent"/>
+    <BoxShadows x:Key="Menu.Shadow">0 8 24 0 #59000000</BoxShadows>   <!-- fits Menu.ShadowRoom (20) -->
+    <!-- Elevation ladder — neutral black, dark depths; geometry fits Menu.ShadowRoom. -->
+    <BoxShadows x:Key="Shadow.Card">0 8 30 0 #4D000000</BoxShadows>
+    <BoxShadows x:Key="Shadow.Popover">0 14 33 0 #73000000</BoxShadows>
+    <BoxShadows x:Key="Shadow.Drawer">8 0 28 0 #73000000</BoxShadows>
+    <BoxShadows x:Key="Shadow.Drawer.Left">-8 0 28 0 #73000000</BoxShadows>
+
+    <!-- Overlay & focus. -->
+    <SolidColorBrush x:Key="Scrim" Color="#000000" Opacity="0.55"/>
+    <SolidColorBrush x:Key="Focus.Ring" Color="#6E8EE8" Opacity="0.55"/>   <!-- Accent @55% -->
+
+    <!-- Option rows (menus/pickers): rest → hover → selected, + the focus/typing state. -->
+    <SolidColorBrush x:Key="Option.Hover.Bg" Color="#232327"/>
+    <SolidColorBrush x:Key="Option.Selected.Bg" Color="#282C3B"/>
+    <SolidColorBrush x:Key="Option.Focus.Bg" Color="#23252F"/>
+    <SolidColorBrush x:Key="Border.AccentHover" Color="#3D4A6F"/>
+    <SolidColorBrush x:Key="Option.Selected.Border" Color="#353E5B"/>   <!-- softer than Accent: selected ≠ focused -->
+    <BoxShadows x:Key="Option.Hover.Shadow">0 2 8 0 #2E000000</BoxShadows>
+    <BoxShadows x:Key="Option.Focus.Ring">0 0 5 1 #336E8EE8</BoxShadows>
+
+    <!-- Borders. -->
+    <Color x:Key="Border.Strong.Color">#4A4A52</Color>
+    <Color x:Key="Border.Mid.Color">#3A3A40</Color>
+    <Color x:Key="Border.Soft.Color">#2E2E33</Color>
+    <Color x:Key="Border.Faint.Color">#262629</Color>
+    <SolidColorBrush x:Key="Border.Strong" Color="{StaticResource Border.Strong.Color}"/>
+    <SolidColorBrush x:Key="Border.Mid" Color="{StaticResource Border.Mid.Color}"/>
+    <SolidColorBrush x:Key="Border.Soft" Color="{StaticResource Border.Soft.Color}"/>
+    <SolidColorBrush x:Key="Border.Faint" Color="{StaticResource Border.Faint.Color}"/>
+
+    <!-- Text — v7 ladder (primary → secondary → muted → ghost). Renamed by value from the pre-v7 keys
+         (primary←ink, secondary←muted, muted←soft, ghost←faint); the pre-v7 Text.Secondary #C4C4CC rung
+         is retired (folded into Secondary), matching the v7 base-style contract. -->
+    <Color x:Key="Text.Primary.Color">#ECECEE</Color>
+    <Color x:Key="Text.Secondary.Color">#9A9AA3</Color>
+    <Color x:Key="Text.Muted.Color">#7C7C85</Color>
+    <Color x:Key="Text.Quiet.Color">#6D6D76</Color>
+    <Color x:Key="Text.Faint.Color">#66666E</Color>
+    <Color x:Key="Text.Ghost.Color">#5E5E66</Color>
+    <SolidColorBrush x:Key="Text.Primary" Color="{StaticResource Text.Primary.Color}"/>
+    <SolidColorBrush x:Key="Text.Secondary" Color="{StaticResource Text.Secondary.Color}"/>
+    <SolidColorBrush x:Key="Text.Muted" Color="{StaticResource Text.Muted.Color}"/>
+    <SolidColorBrush x:Key="Text.Quiet" Color="{StaticResource Text.Quiet.Color}"/>
+    <SolidColorBrush x:Key="Text.Faint" Color="{StaticResource Text.Faint.Color}"/>
+    <SolidColorBrush x:Key="Text.Ghost" Color="{StaticResource Text.Ghost.Color}"/>
+
+    <!-- Accent + semantics. -->
+    <Color x:Key="Accent.Color">#6E8EE8</Color>
+    <Color x:Key="Ok.Color">#4CAF6A</Color>
+    <Color x:Key="Warn.Color">#D8A24A</Color>
+    <Color x:Key="Danger.Color">#E0685C</Color>
+    <SolidColorBrush x:Key="Accent" Color="{StaticResource Accent.Color}"/>
+    <SolidColorBrush x:Key="Ok" Color="{StaticResource Ok.Color}"/>
+    <SolidColorBrush x:Key="Warn" Color="{StaticResource Warn.Color}"/>
+    <SolidColorBrush x:Key="Danger" Color="{StaticResource Danger.Color}"/>
+
+    <!-- Accent companions. OnAccent = ink on a bright accent FILL (dark themes use dark ink);
+         OnAccentBright = constant light ink for SMALL glyph chips on accent fills. -->
+    <SolidColorBrush x:Key="Accent.Hover" Color="#7F9BEC"/>
+    <SolidColorBrush x:Key="Accent.Tint" Color="#6E8EE8" Opacity="0.16"/>   <!-- selected-row tint fill -->
+    <SolidColorBrush x:Key="Accent.OnAccent" Color="#15151A"/>
+    <SolidColorBrush x:Key="Accent.OnAccentBright" Color="#FCFCFE"/>
+
+    <!-- Reveal-affordance accent (drawer pulls, rail expanders) — its OWN slot, never the action accent. -->
+    <SolidColorBrush x:Key="Accent.Gold" Color="#C0A068"/>
+    <Color x:Key="Accent.Gold.Color">#C0A068</Color>
+    <SolidColorBrush x:Key="Accent.GoldTint" Color="#302C28"/>   <!-- gold 12% over the row surface, opaque -->
+    <Color x:Key="Accent.GoldTint.Color">#302C28</Color>
+    <BoxShadows x:Key="Accent.GoldEdge">inset 0 0 0 1 #38C0A068</BoxShadows>
+
+    <!-- Intent tiers: Hover = filled-button hover (dark lifts) · Tint = opaque pale fill ·
+         Wash = base @16% alpha (self-adapts under a solid border) · Deny/Dot = deep/bright rungs. -->
+    <SolidColorBrush x:Key="Ok.Hover" Color="#5DBD7A"/>
+    <SolidColorBrush x:Key="Ok.Tint" Color="#24342B"/>
+    <SolidColorBrush x:Key="Ok.Wash" Color="#294CAF6A"/>
+    <SolidColorBrush x:Key="Ok.Dot" Color="#58C878"/>
+    <SolidColorBrush x:Key="Danger.Hover" Color="#E87F73"/>
+    <SolidColorBrush x:Key="Danger.Tint" Color="#3B2829"/>
+    <SolidColorBrush x:Key="Danger.Wash" Color="#29E0685C"/>
+    <SolidColorBrush x:Key="Danger.Deny" Color="#D25A4E"/>
+
+    <!-- ── Terminal well (Avalloy.Terminal.Hosting) — the PTY surface and the dormant well's
+         stand-in prompt. A terminal reads as a dark well in BOTH variants, which is why the light
+         template only lifts Term.Bg and carries the rest verbatim: the ink sits on this surface, not
+         on the page. Neutral defaults — an app with a house terminal palette overrides all seven in
+         its own dictionary and this template never has to know. ── -->
+    <SolidColorBrush x:Key="Term.Bg" Color="#17171A"/>
+    <SolidColorBrush x:Key="Term.Text" Color="#D2D2D8"/>
+    <SolidColorBrush x:Key="Term.Prompt" Color="#6FA8DC"/>     <!-- the ❯ sigil (constant across variants) -->
+    <SolidColorBrush x:Key="Term.Pass" Color="#58C878"/>       <!-- pass/success lines (constant) -->
+    <SolidColorBrush x:Key="Term.Dim" Color="#8A8A94"/>        <!-- the dormant stand-in prompt -->
+    <SolidColorBrush x:Key="Term.Label" Color="#E1E1E7"/>
+    <SolidColorBrush x:Key="Term.Border" Color="#2E2E34"/>
+
+    <!-- Avalloy TabStrip contract — brush aliases onto this theme's tokens (no new colors). -->
+    <StaticResource x:Key="AlloyAccentBrush" ResourceKey="Accent"/>
+    <StaticResource x:Key="AlloyTabStripBackground" ResourceKey="Surface.Pane"/>
+    <StaticResource x:Key="AlloyActiveTabBackground" ResourceKey="Surface.Pane2"/>
+    <StaticResource x:Key="AlloyActiveTabForeground" ResourceKey="Text.Primary"/>
+    <StaticResource x:Key="AlloyTabHoverBackground" ResourceKey="Surface.Raised"/>
+    <StaticResource x:Key="AlloyTabButtonHoverBackground" ResourceKey="Surface.Raised2"/>
+    <StaticResource x:Key="AlloyTabGhostBackground" ResourceKey="Surface.Raised"/>
+    <StaticResource x:Key="AlloyTabForeground" ResourceKey="Text.Secondary"/>
+    <StaticResource x:Key="AlloyTabForegroundStrong" ResourceKey="Text.Primary"/>
+    <StaticResource x:Key="AlloyTabForegroundDim" ResourceKey="Text.Muted"/>
+    <StaticResource x:Key="AlloyTabSuccessBrush" ResourceKey="Ok"/>
+    <StaticResource x:Key="AlloyTabDangerBrush" ResourceKey="Danger"/>
+</ResourceDictionary>

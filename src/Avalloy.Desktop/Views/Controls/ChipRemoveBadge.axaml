@@ -1,0 +1,24 @@
+<!-- ── Floating remove badge for chip/thumbnail templates — an INVERTED circle (Text.Primary fill,
+     Surface.Raised glyph) so it stays legible over any content in both light and dark themes. It used to
+     paint a Surface.CodeChip circle with a white ✕, which vanished on light themes (that token is a pale
+     surface there). Placement (top-right overhang) is baked in; binds RemoveCommand off the inherited
+     item DataContext, so the bindings stay reflection-based. ── -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:icons="using:Avalloy.Icons"
+             x:Class="Avalloy.Views.Controls.ChipRemoveBadge"
+             x:CompileBindings="False"
+             HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-7,-7,0"
+             Width="18" Height="18">
+    <Button Command="{Binding RemoveCommand}" Classes="bare" Cursor="Hand"
+            Padding="0" ToolTip.Tip="Remove">
+        <Border Background="{DynamicResource Text.Primary}" CornerRadius="9">
+            <!-- The ICON, not a literal "✕" character. It used to be a TextBlock, and the mark came out
+                 malformed: U+2715 is not in the UI face, so it fell back to whatever system font had it and
+                 rendered heavy and off-centre inside an 18px circle. A glyph from the pack is drawn geometry —
+                 no font resolution, no fallback, same mark as every other ✕ in the app. -->
+            <icons:GlyphIcon Glyph="Close" Size="9" Foreground="{DynamicResource Surface.Raised}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+    </Button>
+</UserControl>

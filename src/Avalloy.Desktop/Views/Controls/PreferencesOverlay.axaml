@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:Avalloy.Views"
+             xmlns:vc="using:Avalloy.Views.Controls"
+             xmlns:icons="using:Avalloy.Icons"
+             x:Class="Avalloy.Views.Controls.PreferencesOverlay">
+
+    <!-- The preferences SHELL: overlaycard chrome, serif-title rail (search-first flat sections,
+         version footer), and the content column (serif section title + ✕). The app supplies the
+         section bodies as Content (each body binds its IsVisible to the navigator's Selected) and
+         a PrefsNavigator for the rail. The ✕ raises OverlayCard's bubbling CloseRequested — the
+         window's one overlay-dismiss handler catches it, so no per-app close wiring. -->
+
+    <Border x:Name="Card" Classes="overlaycard" ClipToBounds="True">
+        <Grid x:Name="Root" ColumnDefinitions="248,*">
+
+            <!-- ── Rail: title · search · flat sections · version footer ─────────────────────────── -->
+            <Border Grid.Column="0" Background="{DynamicResource Surface.Pane}"
+                    CornerRadius="13,0,0,13" Padding="16,22,16,14">
+                <Grid RowDefinitions="Auto,Auto,*,Auto">
+                    <TextBlock x:Name="TitleText" Grid.Row="0" FontFamily="{DynamicResource Font.Display}"
+                               FontSize="22" FontWeight="{DynamicResource Font.Display.Weight}"
+                               Foreground="{DynamicResource Text.Primary}"
+                               Margin="6,0,0,0"/>
+                    <!-- DataContext = the PrefsNavigator (set from code-behind when Navigator changes). -->
+                    <vc:AlloyTextBox x:Name="SearchBox" Grid.Row="1" Classes="sm bare" Margin="0,14,0,0" Height="34"
+                                   LeadingGlyph="Search" ShowClear="True" FontSize="12.5"
+                                   PlaceholderText="Search settings…"
+                                   x:DataType="views:PrefsNavigator" Text="{Binding SearchText, Mode=TwoWay}"/>
+                    <ScrollViewer Grid.Row="2" Margin="0,14,0,0">
+                        <ItemsControl x:Name="NavList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="views:PrefSection">
+                                    <Button Classes="bare" Command="{Binding Pick}" HorizontalAlignment="Stretch"
+                                            Margin="0,1" IsVisible="{Binding Visible}">
+                                        <Border Classes="prefnav" Classes.on="{Binding Selected}" HorizontalAlignment="Stretch">
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <!-- Footer line (e.g. "v1.2 · check for updates") — tap raises VersionTapped. -->
+                    <TextBlock x:Name="VersionText" Grid.Row="3" FontSize="11.5"
+                               Foreground="{DynamicResource Text.Faint}" Margin="6,10,0,2"
+                               Cursor="Hand" Tapped="OnVersionTapped"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Content: serif section title + ✕, then the app's section bodies ───────────────── -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,*">
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="30,24,20,0">
+                    <TextBlock x:Name="SectionTitle" Grid.Column="0" FontFamily="{DynamicResource Font.Display}"
+                               FontSize="24" FontWeight="{DynamicResource Font.Display.Weight}"
+                               Foreground="{DynamicResource Text.Primary}"
+                               x:DataType="views:PrefsNavigator" Text="{Binding Selected}"/>
+                    <Border Grid.Column="1" Width="30" Height="30" CornerRadius="6" Background="Transparent"
+                            Cursor="Hand" Tapped="OnClose" VerticalAlignment="Top">
+                        <icons:GlyphIcon Glyph="Close" Size="14" Foreground="{DynamicResource Text.Secondary}"
+                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1">
+                    <ContentPresenter x:Name="Body" Margin="30,16,30,24"/>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

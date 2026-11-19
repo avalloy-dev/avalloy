@@ -1,0 +1,9 @@
+# Netlify config for avalloy.dev: the VitePress docs site under site/.
+
+[build]
+  base = "site"
+  publish = ".vitepress/dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "24"

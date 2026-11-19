@@ -1,0 +1,88 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:logs="using:Avalloy.Controls.Logs"
+             xmlns:vc="using:Avalloy.Views.Controls"
+             x:Class="Avalloy.Controls.Logs.LogViewer"
+             x:DataType="logs:LogViewerViewModel"
+             x:CompileBindings="True">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://Avalloy.Desktop/Controls/Logs/LogViewerStyles.axaml"/>
+  </UserControl.Styles>
+
+  <DockPanel>
+    <!-- Toolbar -->
+    <Border DockPanel.Dock="Top" Classes="lv-toolbar">
+      <DockPanel>
+        <!-- Right cluster: actions -->
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <ToggleButton Classes="lv-btn" IsChecked="{Binding Paused}" Content="Pause"
+                        ToolTip.Tip="Stop the live tail; entries keep accumulating"/>
+          <ToggleButton Classes="lv-btn" IsChecked="{Binding NewestFirst}" Content="Newest first"/>
+          <Button Classes="lv-btn" Content="Copy" Click="OnCopyClick"
+                  ToolTip.Tip="Copy selected rows (or all shown) to the clipboard"/>
+          <Button Classes="lv-btn" Command="{Binding ClearCommand}" Content="Clear"/>
+          <Button Classes="lv-btn" Command="{Binding RevealLogFileCommand}" Content="Reveal log file"
+                  IsEnabled="{Binding HasLogFile}" ToolTip.Tip="{Binding LogFilePath}"/>
+          <Button Classes="lv-btn lv-quiet" Command="{Binding ProbeCommand}" Content="Probe"
+                  ToolTip.Tip="Emit one entry per level to verify the pipeline"/>
+        </StackPanel>
+
+        <!-- Left cluster: filters -->
+        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <vc:AlloyTextBox Width="180" PlaceholderText="Filter…" Text="{Binding SearchText}"/>
+          <ItemsControl ItemsSource="{Binding LevelChips}" VerticalAlignment="Center">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="2"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="logs:LevelChip">
+                <Button Classes="lv-btn lv-chip" Classes.active="{Binding IsActive}"
+                        Content="{Binding Label}"
+                        Command="{Binding $parent[logs:LogViewer].((logs:LogViewerViewModel)DataContext).SetMinLevelCommand}"
+                        CommandParameter="{Binding}"
+                        ToolTip.Tip="Show this level and above"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <vc:AlloySelect MinWidth="130" ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"/>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Status line -->
+    <Border DockPanel.Dock="Bottom" Classes="lv-statusbar">
+      <TextBlock Classes="lv-status" Text="{Binding Status}"/>
+    </Border>
+
+    <!-- Entries -->
+    <ListBox x:Name="EntriesList" ItemsSource="{Binding Visible}" SelectionMode="Multiple,Toggle"
+             Background="{DynamicResource Surface.Inset}" Padding="0">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="logs:LogEntryRow">
+          <Border Classes="lv-row" Classes.error="{Binding IsError}" Classes.critical="{Binding IsCritical}">
+            <StackPanel Spacing="2">
+              <Grid ColumnDefinitions="Auto,Auto,Auto,*">
+                <TextBlock Grid.Column="0" Classes="lv-time" Text="{Binding Time}"/>
+                <Border Grid.Column="1" Classes="lv-badge"
+                        Classes.trace="{Binding IsTrace}" Classes.debug="{Binding IsDebug}"
+                        Classes.info="{Binding IsInfo}" Classes.warn="{Binding IsWarn}"
+                        Classes.error="{Binding IsError}" Classes.critical="{Binding IsCritical}">
+                  <TextBlock Text="{Binding LevelBadge}"/>
+                </Border>
+                <TextBlock Grid.Column="2" Classes="lv-category" Text="{Binding Category}"/>
+                <TextBlock Grid.Column="3" Classes="lv-message" Text="{Binding Message}"
+                           ToolTip.Tip="{Binding Message}"/>
+              </Grid>
+              <TextBlock Classes="lv-scopes" Text="{Binding Scopes}" IsVisible="{Binding HasScopes}"/>
+              <SelectableTextBlock Classes="lv-exception" Text="{Binding ExceptionText}"
+                                   IsVisible="{Binding HasException}"/>
+            </StackPanel>
+          </Border>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+    </ListBox>
+  </DockPanel>
+</UserControl>

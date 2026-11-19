@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Avalloy.Views.Controls.HotkeyBox"
+             Focusable="True">
+  <Border x:Name="Frame"
+          MinHeight="30"
+          Padding="8,4"
+          CornerRadius="4"
+          BorderThickness="1"
+          BorderBrush="{DynamicResource Edge.Pane}"
+          Background="{DynamicResource Surface.Pane}">
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBlock x:Name="Display"
+                 Grid.Column="0"
+                 VerticalAlignment="Center"
+                 Foreground="{DynamicResource Text.Primary}"/>
+      <Button x:Name="ClearButton"
+              Grid.Column="1"
+              Content="✕"
+              Padding="6,0"
+              Background="Transparent"
+              BorderThickness="0"
+              Foreground="{DynamicResource Text.Secondary}"/>
+    </Grid>
+  </Border>
+</UserControl>

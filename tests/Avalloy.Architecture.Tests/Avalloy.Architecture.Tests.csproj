@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- Microsoft Testing Platform + MSTest, matching the other suites. Reflection over the
+         built assemblies plus one directory listing; nothing here waits on anything. -->
+    <EnableMicrosoftTestingPlatform>true</EnableMicrosoftTestingPlatform>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+    <TestingPlatformCommandLineArguments>--timeout 15s</TestingPlatformCommandLineArguments>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.5.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.5.3" />
+  </ItemGroup>
+
+  <!-- EVERY package that must stay free of Avalonia, and nothing else: this project's own dependency
+       closure is part of what the suite checks, so a UI package referenced here would fail it.
+       Keep in step with PlainPackages in PlainPackageTests.cs. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Common\Avalloy.Common.csproj" />
+  </ItemGroup>
+
+  <!-- Build order only. BasePackageTests, CommonPackageTests and the preset test read these packages as FILES (their restore
+       graph and their built assemblies' metadata): referencing them for real would put Avalonia in this
+       project's own closure, which Nothing_In_The_Plain_Packages_Dependency_Closure_Is_Avalonia forbids. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Avalloy.Base\Avalloy.Base.csproj" ReferenceOutputAssembly="false" Private="false" ExcludeAssets="all" />
+    <ProjectReference Include="..\..\src\Avalloy.Desktop\Avalloy.Desktop.csproj" ReferenceOutputAssembly="false" Private="false" ExcludeAssets="all" />
+  </ItemGroup>
+</Project>

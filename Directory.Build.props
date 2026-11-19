@@ -1,0 +1,38 @@
+<Project>
+
+  <!-- Shared metadata for every project in the repo. Packing is OFF by default and
+       switched on in src/Directory.Build.props, so tests and demos can never
+       accidentally ship. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- One version for the whole repo. The packages are developed and released in
+         lockstep, so Avalloy.Common, Base and Desktop always come as one matched set. -->
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>John Campion Jr</Authors>
+    <Company>Brightshore</Company>
+    <Product>Avalloy</Product>
+    <Copyright>Copyright © John Campion Jr</Copyright>
+    <PackageProjectUrl>https://github.com/avalloy-dev/avalloy</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/avalloy-dev/avalloy</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- MIT (LICENSE). Bundled third-party material keeps its own terms
+         (THIRD-PARTY-NOTICES.md, packed by src/Directory.Build.props). -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Local staging directory only. `dotnet pack` writes here, then shiprig pushes the
+         packages to the feed named in .changeset/config.json (dotnet.packageSource). This
+         folder is deliberately outside the repo and is not a distribution channel. -->
+    <PackageOutputPath>$(MSBuildThisFileDirectory)../local-feed</PackageOutputPath>
+  </PropertyGroup>
+
+
+</Project>

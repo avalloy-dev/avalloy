@@ -1,0 +1,302 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Avalloy.Controls.Tabs.TabStripStyles"
+        x:ClassModifier="internal">
+
+    <!--
+        Visual language for the TabStrip control. Self-included by TabStrip.axaml
+        so any host app gets the look without wiring. Every brush/font is a
+        neutral Alloy* DynamicResource; geometry + active-tab tokens (Pane*/
+        AlloyActiveTab*) ride the same cascade. Shell apps publish the Alloy* keys
+        from their own palette in TabStripTheming.Apply (so the accent tracks
+        AccentColorRampName); native-theme apps define them in their dictionaries.
+    -->
+
+    <!-- Strip background sits behind the host's content — deepest surface so it
+         recedes. Geometry from the cascade. -->
+    <Style Selector="Border.tab-strip">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabStripBackground}"/>
+        <!-- Hairline along the bottom edge separating the strip from the hosted
+             content. Themed via PaneTabStripBorderThickness (set "0" to drop it). -->
+        <Setter Property="BorderBrush" Value="{DynamicResource AlloyTabStripBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource PaneTabStripBorderThickness}"/>
+        <Setter Property="Padding" Value="{DynamicResource PaneTabStripPadding}"/>
+    </Style>
+
+    <!-- Tab base (inactive, no hover) — transparent; only hover + active paint.
+         Geometry tokens are themable (corner radius, padding, between-tab spacing). -->
+    <Style Selector="Border.tab">
+        <Setter Property="MinHeight" Value="{DynamicResource PaneTabMinHeight}"/>
+        <Setter Property="Padding" Value="{DynamicResource PaneTabPadding}"/>
+        <Setter Property="Margin" Value="{DynamicResource PaneTabSpacing}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource PaneTabCornerRadius}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.tab:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabHoverBackground}"/>
+    </Style>
+
+    <!-- Active tab: lifts to the content background. The accent indicator is
+         per-shape, driven by the indicator-* class stamped on the strip from the
+         resolved indicator string. Background lift applies to all four shapes;
+         only the indicator paint differs. -->
+    <Style Selector="ContentPresenter.active > Border.tab">
+        <Setter Property="Background" Value="{DynamicResource AlloyActiveTabBackground}"/>
+    </Style>
+    <Style Selector="Border.tab-strip.indicator-underline ContentPresenter.active > Border.tab">
+        <Setter Property="BorderBrush" Value="{DynamicResource AlloyAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource PaneTabActiveUnderlineThickness}"/>
+    </Style>
+    <Style Selector="Border.tab-strip.indicator-border ContentPresenter.active > Border.tab">
+        <Setter Property="BorderBrush" Value="{DynamicResource AlloyAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource PaneTabActiveBorderThickness}"/>
+    </Style>
+    <!-- Overline (Chrome/Safari-style): the accent rides the TOP edge only and
+         curls through the top corner radius. Every tab in this mode carries the
+         same top-only thickness (transparent when inactive) instead of the base
+         bottom reservation, so activating a tab repaints an edge without moving
+         a pixel of its content. -->
+    <Style Selector="Border.tab-strip.indicator-overline Border.tab">
+        <Setter Property="BorderThickness" Value="{DynamicResource PaneTabActiveOverlineThickness}"/>
+    </Style>
+    <Style Selector="Border.tab-strip.indicator-overline ContentPresenter.active > Border.tab">
+        <Setter Property="BorderBrush" Value="{DynamicResource AlloyAccentBrush}"/>
+    </Style>
+    <!-- Dot + None leave BorderThickness at the inactive reservation so the active
+         tab doesn't shift. Dot enables the .tab-active-dot element below. -->
+    <Style Selector="Border.tab Border.tab-active-dot">
+        <Setter Property="IsVisible" Value="False"/>
+        <Setter Property="Width" Value="{DynamicResource PaneTabActiveDotSize}"/>
+        <Setter Property="Height" Value="{DynamicResource PaneTabActiveDotSize}"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Background" Value="{DynamicResource AlloyAccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="6,0,2,0"/>
+    </Style>
+    <!-- Override comes AFTER the default-False style so last-style-wins picks
+         IsVisible=True for active+indicator-dot. -->
+    <Style Selector="Border.tab-strip.indicator-dot ContentPresenter.active > Border.tab Border.tab-active-dot">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- Tab name text — secondary fg when inactive, primary when active. -->
+    <Style Selector="Border.tab TextBlock.tab-name">
+        <Setter Property="FontFamily" Value="{DynamicResource AlloyTabFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource AlloyTabFontSize}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForeground}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="MaxWidth" Value="160"/>
+    </Style>
+    <Style Selector="ContentPresenter.active > Border.tab TextBlock.tab-name">
+        <Setter Property="Foreground" Value="{DynamicResource AlloyActiveTabForeground}"/>
+    </Style>
+    <!-- Preview (provisional) tab — italic title, VSCode-style, signalling the
+         tab is transient until a commit gesture keeps it. -->
+    <Style Selector="Border.tab.preview TextBlock.tab-name">
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+
+    <!-- Close × on tabs: dim fg by default, hover pops to strong fg on the
+         button-hover background. -->
+    <Style Selector="Border.tab Button.tab-close">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForegroundDim}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+    <Style Selector="Border.tab Button.tab-close:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabButtonHoverBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForegroundStrong}"/>
+    </Style>
+
+    <!-- Single-tab host: hide-the-close padding tweak (no color). Re-declare so
+         the layout setter wins over the inactive-tab Padding above. -->
+    <Style Selector="ContentPresenter.only-tab > Border.tab">
+        <Setter Property="Padding" Value="12,4,14,4"/>
+    </Style>
+
+    <!-- Pin / lock buttons share styling — layout-only differences from close. -->
+    <Style Selector="Border.tab Button.tab-pin, Border.tab Button.tab-lock-btn">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+    <Style Selector="Border.tab Button.tab-pin:pointerover, Border.tab Button.tab-lock-btn:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabButtonHoverBackground}"/>
+    </Style>
+
+    <!-- Passive status badge — same 16x16 slot as the pin/lock buttons so a badged
+         tab lines up with a pinned one, but no hover treatment: it isn't clickable. -->
+    <Style Selector="Border.tab Panel.tab-badge">
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Dragged tab dims in place; the floating ghost provides the moving visual. -->
+    <Style Selector="Border.tab.dragging">
+        <Setter Property="Opacity" Value="0.4"/>
+    </Style>
+
+    <!-- Drag ghost — looks like an active tab lifted off the surface. -->
+    <Style Selector="Border.tab-ghost">
+        <Setter Property="MinHeight" Value="{DynamicResource PaneTabMinHeight}"/>
+        <Setter Property="Padding" Value="12,4,8,4"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="Background" Value="{DynamicResource AlloyTabGhostBackground}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AlloyAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BoxShadow" Value="0 8 24 0 #80000000"/>
+        <Setter Property="Opacity" Value="0.95"/>
+    </Style>
+    <Style Selector="Border.tab-ghost TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AlloyTabFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource AlloyTabFontSize}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForegroundStrong}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        <Setter Property="MaxWidth" Value="160"/>
+    </Style>
+
+    <!-- "+" new tab button at the trailing end of the strip. -->
+    <Style Selector="Button.new-tab">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Margin" Value="4,2,0,2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForeground}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+    <Style Selector="Button.new-tab:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabHoverBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForegroundStrong}"/>
+    </Style>
+
+    <!-- Overflow chevron — same chrome as "+"; opens the all-tabs dropdown. -->
+    <Style Selector="Button.tab-overflow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Width" Value="22"/>
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Margin" Value="0,2,2,2"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForeground}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CornerRadius" Value="3"/>
+    </Style>
+    <Style Selector="Button.tab-overflow:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabHoverBackground}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabForegroundStrong}"/>
+    </Style>
+
+    <!-- ==========================================================
+         Activity status indicator
+         A dot (Running / NeedsAttention / Error) or a check (Complete),
+         shown on inactive tabs too. Colors come from the theme ramp:
+         accent for running/attention, the success/danger brushes for
+         complete/error. The slot collapses when Idle, and the whole
+         indicator collapses when the strip carries the host-driven
+         "activity-off" class (ITabHost.ShowActivity == false).
+         ========================================================== -->
+    <Style Selector="Panel.activity">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="Panel.activity.act-running">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="Panel.activity.act-attention">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="Panel.activity.act-error">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="Panel.activity.act-complete">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <!-- Host opted out → collapse regardless of per-tab state. -->
+    <Style Selector="Border.tab-strip.activity-off Panel.activity">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="Panel.activity Border.activity-dot">
+        <Setter Property="IsVisible" Value="False"/>
+        <Setter Property="Width" Value="7"/>
+        <Setter Property="Height" Value="7"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Panel.activity TextBlock.activity-check">
+        <Setter Property="IsVisible" Value="False"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource AlloyTabSuccessBrush}"/>
+    </Style>
+
+    <!-- Dot states: show the dot, tint per state. -->
+    <Style Selector="Panel.activity.act-running Border.activity-dot,
+                     Panel.activity.act-attention Border.activity-dot,
+                     Panel.activity.act-error Border.activity-dot">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="Panel.activity.act-running Border.activity-dot,
+                     Panel.activity.act-attention Border.activity-dot">
+        <Setter Property="Background" Value="{DynamicResource AlloyAccentBrush}"/>
+    </Style>
+    <Style Selector="Panel.activity.act-error Border.activity-dot">
+        <Setter Property="Background" Value="{DynamicResource AlloyTabDangerBrush}"/>
+    </Style>
+    <!-- Complete: show the check instead of a dot. -->
+    <Style Selector="Panel.activity.act-complete TextBlock.activity-check">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- Running: quiet opacity pulse so a background tab reads as "working". -->
+    <Style Selector="Panel.activity.act-running Border.activity-dot">
+        <Style.Animations>
+            <Animation Duration="0:0:1.2" IterationCount="INFINITE" Easing="SineEaseInOut">
+                <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0.35"/></KeyFrame>
+                <KeyFrame Cue="50%"><Setter Property="Opacity" Value="1.0"/></KeyFrame>
+                <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0.35"/></KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+</Styles>

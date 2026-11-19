@@ -1,0 +1,8 @@
+{
+  "name": "normal",
+  "displayName": "Normal",
+  "kind": "density",
+  "tokens": {
+    "AlloyUiDensity": "Normal"
+  }
+}

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+    <!-- The iconpack creation tool: a thin file-I/O shell over Avalloy.Common's baker
+         (Avalloy.Icons.Baking).
+         Invoked by iconpacks.targets to (re)bake bundled packs; also runnable by hand to
+         create a new pack. -->
+    <AssemblyName>Avalloy.IconTool</AssemblyName>
+    <RootNamespace>Avalloy.Icons.Tool</RootNamespace>
+
+    <!-- Ships as a dotnet tool rather than a library. Consuming apps that bake their OWN
+         icon packs need to run this, and inside this repo the targets invoke
+         the project directly — but a NuGet consumer has no project to point at. A tool
+         package is the only form that gives them a runnable binary; Avalloy.Common.targets
+         (shipped in the Avalloy.Common package) calls it via `dotnet tool run`. -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>avalloy-icontool</ToolCommandName>
+    <Description>Command-line icon-pack baker for Avalloy: turns a directory of SVGs into a baked XAML icon pack.</Description>
+    <PackageTags>avalonia;icons;svg;dotnet-tool</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Avalloy.Common\Avalloy.Common.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+<Project>
+
+  <!-- MSBuild stops at the first Directory.Build.props it finds, so carry on to the repo's own. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Every test module can take a hang dump: the HangDump options name the tests still running when a
+       module overruns, write a dump and end the module. CI passes them (ci.yml, Test step),
+       because a hung macOS leg used to leave nothing but "exceeded the maximum execution time". Here, not
+       in each csproj, so a test project added later has it too. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.5.3" />
+  </ItemGroup>
+
+</Project>

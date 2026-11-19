@@ -1,0 +1,134 @@
+/* ===========================================================================
+   Avalloy docs theme. Dark-first, Inter for prose, JetBrains Mono for code,
+   one accent per package. The gold is the platform's own Accent.Gold.
+   =========================================================================== */
+
+:root {
+  --av-ink:       #0F1013;
+  --av-ink-2:     #15161B;
+  --av-ink-3:     #1C1D24;
+  --av-term:      #0B0C0F;
+  --av-line:      #262830;
+  --av-line-soft: #1E1F26;
+  --av-paper:     #ECEDF0;
+  --av-muted:     #8B8D98;
+
+  --av-core:    #E2B13C; /* gold   — Core            */
+  --av-themes:  #A98BF5; /* violet — Themes          */
+  --av-icons:   #3FC3B0; /* teal   — Icons + IconTool */
+  --av-updates: #5FC26A; /* green  — Updates         */
+
+  --av-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --av-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --vp-font-family-base: var(--av-sans);
+  --vp-font-family-mono: var(--av-mono);
+
+  --vp-c-brand-1: var(--av-core);
+  --vp-c-brand-2: #ecc45f;
+  --vp-c-brand-3: #c99a2a;
+  --vp-c-brand-soft: color-mix(in srgb, var(--av-core) 14%, transparent);
+
+  --vp-home-hero-name-color: var(--av-core);
+  --vp-home-hero-image-background-image: radial-gradient(
+    60% 60% at 50% 40%, color-mix(in srgb, var(--av-core) 26%, transparent), transparent 70%);
+  --vp-home-hero-image-filter: blur(48px);
+}
+
+.dark {
+  --vp-c-bg:      var(--av-ink);
+  --vp-c-bg-alt:  var(--av-ink-2);
+  --vp-c-bg-soft: var(--av-ink-2);
+  --vp-c-bg-elv:  var(--av-ink-3);
+
+  --vp-c-text-1: var(--av-paper);
+  --vp-c-text-2: #c9cad1;
+  --vp-c-text-3: var(--av-muted);
+
+  --vp-c-divider: var(--av-line);
+  --vp-c-border:  var(--av-line);
+  --vp-c-gutter:  var(--av-line-soft);
+
+  --vp-code-block-bg: var(--av-term);
+
+  --vp-c-tip-1: var(--av-updates);
+  --vp-c-tip-2: var(--av-updates);
+  --vp-c-tip-soft: color-mix(in srgb, var(--av-updates) 9%, var(--av-ink-2));
+  --vp-c-warning-1: var(--av-core);
+  --vp-c-warning-2: var(--av-core);
+  --vp-c-warning-soft: color-mix(in srgb, var(--av-core) 9%, var(--av-ink-2));
+}
+
+.VPHero .name { letter-spacing: -0.02em; }
+.VPHero .text { font-weight: 600; letter-spacing: -0.01em; }
+.vp-doc h1 { font-weight: 800; letter-spacing: -0.02em; }
+.vp-doc h2 { font-weight: 700; letter-spacing: -0.01em; }
+.vp-doc :not(pre) > code { border: 1px solid var(--vp-c-divider); border-radius: 5px; }
+
+/* Per-package accent tokens, usable via class on any element. */
+.acc-core    { --acc: var(--av-core); }
+.acc-themes  { --acc: var(--av-themes); }
+.acc-icons   { --acc: var(--av-icons); }
+
+/* ---- Landing: package cards ---------------------------------------------- */
+.av-packages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin: 8px 0 12px;
+}
+@media (max-width: 760px) { .av-packages { grid-template-columns: 1fr; } }
+
+.av-pkg {
+  position: relative;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 18px;
+  background: var(--vp-c-bg-alt);
+  padding: 28px;
+  overflow: hidden;
+  transition: border-color .18s, transform .18s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.av-pkg:hover {
+  border-color: color-mix(in srgb, var(--acc) 55%, var(--vp-c-border));
+  transform: translateY(-2px);
+}
+.av-pkg .glow {
+  position: absolute; width: 240px; height: 240px; border-radius: 50%;
+  right: -100px; top: -110px;
+  background: var(--acc); filter: blur(60px); opacity: .15; pointer-events: none;
+}
+.av-pkg-head { display: flex; align-items: center; gap: 16px; }
+.av-pkg-head img { width: 50px; height: 50px; flex: none; }
+.av-pkg-name { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--vp-c-text-1); font-family: var(--av-mono); }
+.av-pkg-name .lite { font-weight: 400; color: var(--vp-c-text-3); }
+.av-pkg-tag {
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--acc); margin-top: 4px; font-weight: 600;
+}
+.av-pkg-desc { color: var(--vp-c-text-2); font-size: 14px; line-height: 1.7; margin: 18px 0 16px; }
+.av-types { display: flex; flex-wrap: wrap; gap: 7px; }
+.av-types code {
+  font-size: 12px; color: var(--vp-c-text-3);
+  background: var(--vp-c-bg-elv); border: 1px solid var(--vp-c-gutter);
+  border-radius: 6px; padding: 4px 9px;
+}
+
+/* ---- Package page header: mark + accent rule ----------------------------- */
+.av-banner { display: flex; align-items: center; gap: 14px; margin: 4px 0 8px; }
+.av-banner img { width: 42px; height: 42px; }
+.av-banner .name { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; font-family: var(--av-mono); }
+.av-banner .name .lite { font-weight: 400; color: var(--vp-c-text-3); }
+
+/* The cards are anchors inside .vp-doc, whose link and code rules would otherwise underline
+   every line and gild every chip. Higher specificity wins. */
+.vp-doc .av-pkg,
+.vp-doc .av-pkg:hover,
+.vp-doc .av-pkg * { text-decoration: none !important; }
+.vp-doc .av-pkg .av-pkg-name,
+.vp-doc .av-pkg .av-pkg-desc { color: var(--vp-c-text-1); }
+.vp-doc .av-pkg .av-pkg-desc { color: var(--vp-c-text-2); }
+.vp-doc .av-pkg .av-types code { color: var(--vp-c-text-3); }
+.vp-doc .av-pkg .av-pkg-tag { color: var(--acc); }

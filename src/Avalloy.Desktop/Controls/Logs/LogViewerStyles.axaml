@@ -1,0 +1,159 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Visual language for the LogViewer control. Self-included by LogViewer.axaml
+        (the TabStrip pattern) so any host app gets the look without wiring styles.
+        Every color is a DynamicResource theme token; severity tones compose from
+        the existing Ok/Warn/Danger/Accent families — no literals, no new tokens.
+    -->
+
+    <!-- Toolbar + status chrome -->
+    <Style Selector="Border.lv-toolbar">
+        <Setter Property="Background" Value="{DynamicResource Surface.Pane2}"/>
+        <Setter Property="Padding" Value="10,8"/>
+    </Style>
+    <Style Selector="Border.lv-statusbar">
+        <Setter Property="Background" Value="{DynamicResource Surface.Pane2}"/>
+        <Setter Property="Padding" Value="12,5"/>
+    </Style>
+    <Style Selector="TextBlock.lv-status">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+    </Style>
+
+    <!-- Toolbar buttons: quiet chips; engaged toggles lift to Surface.Raised
+         (the v7 grammar for an "on" toggle — fill, not accent). -->
+    <Style Selector=":is(Button).lv-btn">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Button}"/>
+        <Setter Property="Padding" Value="9,4"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector=":is(Button).lv-btn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface.Hover}"/>
+    </Style>
+    <Style Selector=":is(Button).lv-btn:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+    </Style>
+    <Style Selector="ToggleButton.lv-btn:checked /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector=":is(Button).lv-btn:disabled /template/ ContentPresenter">
+        <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    <Style Selector=":is(Button).lv-quiet">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+    </Style>
+
+    <!-- Level-floor chips: the active floor and everything above it lift. -->
+    <Style Selector=":is(Button).lv-chip">
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+    </Style>
+    <Style Selector=":is(Button).lv-chip.active">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector=":is(Button).lv-chip.active /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Surface.Raised}"/>
+    </Style>
+
+    <!-- Rows -->
+    <Style Selector="ListBox#EntriesList ListBoxItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+    </Style>
+    <Style Selector="Border.lv-row">
+        <Setter Property="Padding" Value="12,3"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.lv-row.error">
+        <Setter Property="Background" Value="{DynamicResource Danger.Wash}"/>
+    </Style>
+    <Style Selector="Border.lv-row.critical">
+        <Setter Property="Background" Value="{DynamicResource Danger.Tint}"/>
+    </Style>
+
+    <Style Selector="TextBlock.lv-time">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,2,0,0"/>
+    </Style>
+    <Style Selector="TextBlock.lv-category">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+        <Setter Property="Margin" Value="0,2,10,0"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+    <Style Selector="TextBlock.lv-message">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <Style Selector="TextBlock.lv-scopes">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+        <Setter Property="Margin" Value="76,0,0,0"/>
+    </Style>
+    <Style Selector="SelectableTextBlock.lv-exception">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="76,0,0,2"/>
+    </Style>
+
+    <!-- Severity badges: fixed-width mono chips. Tones ride the existing status
+         families (Warn has no Tint/Wash companion, so it stays fill-free). -->
+    <Style Selector="Border.lv-badge">
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Badge}"/>
+        <Setter Property="Padding" Value="5,1"/>
+        <Setter Property="Margin" Value="10,1,10,0"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="MinWidth" Value="34"/>
+    </Style>
+    <Style Selector="Border.lv-badge > TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.lv-badge.trace > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Muted}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.debug > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.info">
+        <Setter Property="Background" Value="{DynamicResource Accent.Tint}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.info > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.warn > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Warn}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.error">
+        <Setter Property="Background" Value="{DynamicResource Danger.Tint}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.error > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.critical">
+        <Setter Property="Background" Value="{DynamicResource Danger}"/>
+    </Style>
+    <Style Selector="Border.lv-badge.critical > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Accent.OnAccentBright}"/>
+    </Style>
+</Styles>

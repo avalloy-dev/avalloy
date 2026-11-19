@@ -1,0 +1,61 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Type ramp as TextBlock style-classes (Classes="title" / "eyebrow" / "mono" …).
+         Brand-neutral. All values resolve via DynamicResource so a theme/variant
+         swap repaints live. -->
+
+    <!-- Base: every TextBlock defaults to the UI family / body size / ink. -->
+    <Style Selector="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Size.Body}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <Style Selector="TextBlock.display">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Size.Display}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Display}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Size.Title}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+
+    <Style Selector="TextBlock.eyebrow">
+        <Setter Property="FontSize" Value="{DynamicResource Size.Eyebrow}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LetterSpacing" Value="0.7"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector="TextBlock.eyebrow.accent">
+        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+    </Style>
+
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+
+    <!-- SelectableTextBlock listed explicitly: Avalonia type selectors match the exact type, not subclasses,
+         so "TextBlock.mono" alone skips SelectableTextBlock (e.g. a selectable mono code/diff block). -->
+    <Style Selector="TextBlock.mono, SelectableTextBlock.mono">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Size.Caption}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Secondary}"/>
+    </Style>
+
+    <!-- Inline code run (mono, ink — vs .mono's muted metadata tone). -->
+    <Style Selector="TextBlock.code">
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary}"/>
+    </Style>
+</Styles>

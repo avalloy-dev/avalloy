@@ -1,0 +1,15 @@
+{
+  // Avalloy default — light variant. The base theme any Avalloy app gets
+  // out-of-the-box; carries only the generic AvalloyTokens (no app-specific
+  // chrome). An app ships its own presets to supersede this.
+  "name": "avalloy-light",
+  "displayName": "Avalloy (Light)",
+  "kind": "theme",
+  "variant": "light",
+  "tokens": {
+    "AlloyAccentRamp":                "Blue",
+    "AlloyAccentBrush":               "#0064E1",
+    "AlloyAccentSelectionBrush":      "#0064E1",
+    "AlloyAccentSelectionForeground": "#FFFFFF"
+  }
+}

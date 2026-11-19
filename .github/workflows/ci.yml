@@ -1,0 +1,167 @@
+# Build, test and pack the whole solution on all three platforms.
+#
+# Three OSes rather than just ubuntu, because this repo's whole job is to be the thing apps sit on
+# and several packages are genuinely per-platform: Avalloy.Common's CliRunner spawns real processes
+# (LoginShellPath runs the login shell), its logging file sink takes a different write path on Windows
+# and Unix, Avalloy.Base reads the macOS keyboard layout its own way, and Avalloy.Desktop has macOS-only
+# title-bar code. A green ubuntu leg says nothing about any of them. GitHub bills macOS at 10x the linux rate and Windows at 2x, which is the argument for
+# keeping this to one fast job per OS rather than a package matrix — the whole solution tests in
+# ~17s once built.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    # Caps a HUNG job. This repo had two: 2274s (cancelled) and 2701s (failure) against a ~100s
+    # normal macOS run, and between them they were ~76% of this repo's entire macOS bill for the
+    # week to 2026-08-20. Without this, GitHub's default is 360 MINUTES.
+    #
+    # Sized at ~1.75x the worst SUCCESSFUL run observed, windows-latest at 344s; GitHub's macOS
+    # runner was 81-124s. Re-measure here first if it ever false-fails.
+    #
+    # NOTE: timeout-minutes bounds EXECUTION, not QUEUE time. A job whose label no runner claims
+    # queues indefinitely and this never fires — observed with WarpBuild on 2026-08-20, and again
+    # with Namespace on 2026-10-16 (its labels sat queued for hours after the account went away).
+    timeout-minutes: 10
+    strategy:
+      # Never cancel the other platforms: a failure on one is usually SPECIFIC to it, and the
+      # other legs' results are what tell you whether it is a platform bug or a real one.
+      fail-fast: false
+      matrix:
+        # All three GitHub-hosted. Namespace ran ubuntu and macOS until 2026-10-16, when it went
+        # away and its jobs queued forever; GitHub's own runners are the ones that cannot vanish
+        # with a vendor account.
+        #
+        # macOS stays, at GitHub's macOS rate: the macOS code paths (the keyboard layout, the title
+        # bar, the login shell) are chosen at RUNTIME, so they have no other coverage.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: dotnet info
+        run: dotnet --info
+
+      # No credential step either: NuGet.config names nuget.org only, so restore works on a
+      # runner with no secrets configured, as it does for a fresh clone.
+      - name: Restore
+        run: dotnet restore Avalloy.slnx
+
+      # SkipBakeIconPacks: the baked icon output is checked in, and a fresh checkout's timestamps
+      # can make MSBuild bake anyway -- running Avalloy.IconTool (and so a second build of
+      # Avalloy.Common) inside the solution build that is compiling it. Run 43729233231's macOS leg
+      # failed on exactly that: two writers of Avalloy.Common.deps.json. CI builds what is committed.
+      - name: Build (Release)
+        run: dotnet build Avalloy.slnx --configuration Release --no-restore -p:SkipBakeIconPacks=true
+
+      # The build leaves its servers running (the Roslyn compiler server VBCSCompiler, MSBuild nodes,
+      # Razor), and on a 3-vCPU macOS runner they compete with the parallel test run that follows. Run
+      # 42249231306's first watch.log sample, taken as the tests started: load=[87.47 55.03 23.56]
+      # mem_free=82%, top process VBCSCompiler at 795 MB RSS and 62.7% CPU. That is overload by CPU, not
+      # memory, and the tests that wait on a real process are the ones it starves. Nothing builds after
+      # this point (Pack is --no-build), and where no server is running this is a no-op.
+      - name: Stop the build servers
+        run: dotnet build-server shutdown
+
+      # Tests that need something a runner may not have skip themselves rather than failing:
+      # the CliRunner and LoginShellPath tests need a POSIX shell, and the Unix file-mode tests skip
+      # on Windows.
+      # Those report as skipped, which is honest — a red leg here means a real regression.
+      # No --max-parallel-test-modules here on purpose. 6 is the measured sweet spot on an
+      # 18-core dev machine; a GitHub runner has 2, and each module is itself parallel, so forcing
+      # 6 oversubscribes it badly. That is not a throughput question — it starves the tests that
+      # wait on a real process, and it is what made a shell spawn miss a 5s deadline on ubuntu
+      # while the same commit passed on macOS and Windows. Let the runner decide.
+      #
+      # A job killed by its own limit leaves no log at all (the log endpoint returns 404). The macOS
+      # hangs since 2026-11-01 also ran straight past this step's timeout-minutes: the job was force-
+      # completed at exactly 15:00 (its 10-minute limit plus GitHub's 5-minute cancel grace) with this
+      # step still in progress, and a superseded run's cancel was ignored for the same 5 minutes. The
+      # runner had stopped acting on anything, so the limits that rely on it cannot be what ends a hang.
+      #
+      # So the step ends itself, while there is still a machine to do it:
+      # - --hangdump: a module whose tests stop making progress for 90s prints the tests still running
+      #   and its process tree, writes a mini dump (~40MB) and is ended. The longest test is well under
+      #   that (the whole of Avalloy.Core.Tests takes ~33s on macOS).
+      # - test-watchdog.sh: samples load, memory, disk and the biggest processes every 10s; at 240s, or
+      #   when the disk or memory is nearly gone, it records the process table and each test process's
+      #   stacks (`sample`, macOS), kills the run's whole process group and fails the step.
+      # Either way the steps below run and upload what was found, and a hang dump's test names are also
+      # an annotation, which survives even a force-completed job.
+      # Worst successful run: windows-latest at ~80s.
+      - name: Test (Release)
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          mkdir -p ./artifacts
+          # A Windows-style path on Windows (pwd -W), which the test apps can read.
+          results="$(pwd -W 2>/dev/null || pwd)/artifacts/test-results"
+          bash .github/scripts/test-watchdog.sh 240 ./artifacts -- \
+            dotnet test --solution Avalloy.slnx --configuration Release --no-build \
+              --hangdump --hangdump-timeout 90s --hangdump-type Mini --results-directory "$results"
+
+      # Only on a red or stopped run. What is still alive names the stuck module, and the
+      # keychain's answer says whether `security` itself has stopped responding.
+      - name: Diagnose a stopped test run
+        if: failure() || cancelled()
+        shell: bash
+        timeout-minutes: 1
+        run: |
+          ps -axo pid,ppid,stat,etime,command | grep -E 'Avalloy|dotnet|security' | grep -v grep || true
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            time /usr/bin/security show-keychain-info || echo "security exited $?"
+          fi
+
+      # The dumps exist only when a module hung, so a green run uploads just the two logs.
+      - name: Upload test output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-output-${{ matrix.os }}
+          path: |
+            ./artifacts/test-output.log
+            ./artifacts/watch.log
+            ./artifacts/stopped-ps.txt
+            ./artifacts/sample-*.txt
+            ./artifacts/test-results/**/*_hang.*
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # This repo SHIPS packages, so "does it still pack" is a first-class failure mode and one
+      # that a build+test run does not catch: missing package metadata, a broken content/target
+      # include, or a project that quietly stopped being packable all pass every test and then
+      # break the release. Cheap to verify, and far better found here than by shiprig.
+      #
+      # Output path is repo-relative on purpose. runner.temp is a native path, so on Windows it
+      # carries backslashes — and every `run:` step here uses bash, which eats them
+      # (`D:\a\_temp` arrives as `D:a_temp`). A forward-slash relative path is the one spelling
+      # that works identically on all three runners.
+      - name: Pack (Release)
+        run: dotnet pack Avalloy.slnx --configuration Release --no-build --output ./artifacts/nupkgs
+
+      # Not decoration: `pack` succeeding while producing nothing would otherwise pass silently.
+      - name: Check packages were produced
+        shell: bash
+        run: |
+          ls -la ./artifacts/nupkgs
+          count=$(ls ./artifacts/nupkgs/*.nupkg 2>/dev/null | wc -l)
+          echo "packed $count package(s)"
+          [ "$count" -gt 0 ] || { echo "::error::pack produced no packages"; exit 1; }

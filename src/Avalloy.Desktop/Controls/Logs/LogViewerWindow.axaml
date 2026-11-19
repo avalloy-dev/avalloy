@@ -1,0 +1,9 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:logs="using:Avalloy.Controls.Logs"
+        x:Class="Avalloy.Controls.Logs.LogViewerWindow"
+        Width="980" Height="620" MinWidth="560" MinHeight="320"
+        Background="{DynamicResource Surface.Window}"
+        WindowStartupLocation="CenterOwner">
+  <logs:LogViewer/>
+</Window>

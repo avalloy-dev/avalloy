@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Avalloy.Common</AssemblyName>
+    <!-- Root namespace `Avalloy`: the contracts (AppPaths, IUserNotifier) are the platform's own vocabulary,
+         and a package in Avalloy.* sees them with no using. Everything else keeps the namespace it shipped
+         under before the four packages became this one: Avalloy.Cli, Avalloy.Services (logging and
+         LoginShellPath, which shipped in Avalloy.Desktop, then Avalloy.Core, under that namespace) and
+         Avalloy.Icons.Baking. A consumer's `using` lines are unchanged. -->
+    <RootNamespace>Avalloy</RootNamespace>
+    <!-- The plain-.NET floor of the platform: what a CLI, a service, an agent runner or an app's engine takes
+         without a UI stack. Until 0.23.0 it was four packages: Avalloy.Abstractions (the contracts, root),
+         Avalloy.Cli (Cli/), Avalloy.Logging (Logging/) and Avalloy.Icons (Icons/). Avalloy.Base and
+         Avalloy.Desktop build on it.
+
+         Keep it that way: no Avalonia, and no package reference beyond Microsoft.Extensions.Logging.Abstractions.
+         A reference added here reaches every headless consumer. The guards are Avalloy.Architecture.Tests'
+         PlainPackageTests and CommonPackageTests.
+
+         Cli is for INVOKING command-line tools, not for being one. Its types are Cli* and its namespace is
+         Avalloy.Cli rather than Avalloy.Process on purpose: a namespace called `Avalloy.Process` shadows
+         System.Diagnostics.Process for every file inside it, so `Process.Start` stops compiling.
+
+         Icons is the pure-BCL SVG baker, so the build-time icon tool and Desktop's runtime user-pack loader can
+         both bake SVGs without Avalonia. It emits path-data STRINGS (IconGlyphSpec); the Avalonia Geometry
+         materialization lives in Avalloy.Desktop. -->
+    <Description>The plain-.NET part of Avalloy, for any host with or without a UI: the shared contracts (IUserNotifier, AppPaths), bounded child-process execution (CliRunner) and LoginShellPath, the logging stack (a crash-safe rolling file provider, an in-memory ring for log viewers, a Trace bridge, structured app events and the AlloyLogging facade), and the SVG icon-pack baker. No Avalonia dependency.</Description>
+    <PackageTags>avalloy;process;cli;logging;microsoft-extensions-logging;icons;svg</PackageTags>
+    <!-- A headless consumer may ship as Native AOT (an agent runner, a CLI): the trim, single-file and AOT
+         analyzers make a change that would break that fail here. -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <!-- FileLoggerProvider's Unix P/Invokes (open/write with O_APPEND) take raw byte pointers. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Abstractions only: providers, scopes and NullLogger. The host builds the LoggerFactory. -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- LoginShellPath's cache, stamp and prompt parsing, and the logging providers' internals, are pinned by
+         the tests. -->
+    <InternalsVisibleTo Include="Avalloy.Common.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NuGet auto-imports build/<PackageId>.targets into any project that references this package directly,
+         which is how a consumer's own <IconPack> declarations get baked. Pack-only (no build action): inside
+         this repo the equivalent targets are imported by path from build/iconpacks.targets instead. -->
+    <None Include="build\Avalloy.Common.targets" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+</Project>

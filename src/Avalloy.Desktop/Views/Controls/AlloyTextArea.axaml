@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vc="using:Avalloy.Views.Controls"
+             x:Class="Avalloy.Views.Controls.AlloyTextArea"
+             x:Name="Root">
+    <!-- The labeled multi-line field: optional Title + muted Description, then an AlloyTextBox in its
+         `area` variant — so every textarea carries the SAME v7 field treatment (Field.Bg well +
+         inset hairline + accent focus ring), never a hand-rolled bordered box. Mono flips the value
+         font + turns wrapping off (line-oriented lists); the inner field's LostFocus bubbles, so
+         hosts attach their commit handler on this control (no per-field re-wiring). -->
+    <UserControl.Styles>
+        <Style Selector="vc|AlloyTextBox.monolines">
+            <Setter Property="FontFamily" Value="{DynamicResource Font.Mono}"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Spacing="10">
+        <StackPanel Spacing="2">
+            <TextBlock Text="{Binding Title, ElementName=Root}" FontWeight="Medium"
+                       IsVisible="{Binding Title, ElementName=Root,
+                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding Description, ElementName=Root}"
+                       IsVisible="{Binding Description, ElementName=Root,
+                                   Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </StackPanel>
+        <vc:AlloyTextBox x:Name="Field" Classes="area" FontSize="12.5"
+                       Text="{Binding Text, ElementName=Root, Mode=TwoWay}"
+                       PlaceholderText="{Binding Placeholder, ElementName=Root}"
+                       MinHeight="{Binding FieldMinHeight, ElementName=Root}"
+                       MaxHeight="{Binding FieldMaxHeight, ElementName=Root}"/>
+    </StackPanel>
+</UserControl>

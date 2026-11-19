@@ -1,0 +1,8 @@
+{
+  "name": "spacious",
+  "displayName": "Spacious",
+  "kind": "density",
+  "tokens": {
+    "AlloyUiDensity": "Spacious"
+  }
+}
