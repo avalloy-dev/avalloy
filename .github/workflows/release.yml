@@ -57,7 +57,7 @@ jobs:
 
       # Pinned, so a release always runs the shiprig it was tested with.
       - name: Install shiprig
-        run: npm install -g @rigsmith/shiprig@1.28.0
+        run: npm install -g @rigsmith/shiprig@1.29.0
 
       - name: Version PR, or publish
         uses: rigsmith/shiprig-action@fcabd796842f61a76ab0146299e26898d1700c3c # v0.8.3
