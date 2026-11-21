@@ -13,7 +13,7 @@
   <PropertyGroup>
     <!-- One version for the whole repo. The packages are developed and released in
          lockstep, so Avalloy.Common, Base and Desktop always come as one matched set. -->
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.1</VersionPrefix>
     <Authors>John Campion Jr</Authors>
     <Company>Brightshore</Company>
     <Product>Avalloy</Product>
