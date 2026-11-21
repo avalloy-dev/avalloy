@@ -3,6 +3,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 
 namespace Avalloy.Services;
 
@@ -178,8 +179,14 @@ public sealed class ToastService : IUserNotifier
     /// Only visible since FluentTheme: the previous theme's NotificationCard wrapped the
     /// presenter in a Border carrying the card's Padding, which covered custom
     /// content too.
+    /// </para>
+    /// <para>
+    /// Pressing either button runs its action and then closes the card it is hosted in, even
+    /// if the action throws: a toast with buttons is a question, and once it is answered it
+    /// has to go, or a persistent one reads as "the button does nothing". The first press
+    /// decides the toast; a second press while the card animates out does nothing.
     /// </para></summary>
-    private static Control BuildActionContent(Toast toast)
+    internal static Control BuildActionContent(Toast toast)
     {
         var stack = new StackPanel
         {
@@ -209,18 +216,23 @@ public sealed class ToastService : IUserNotifier
             HorizontalAlignment = HorizontalAlignment.Right,
             Margin = new Avalonia.Thickness(0, 4, 0, 0),
         };
+        var answered = false;
+        Button ActionButton(string label, Action action)
+        {
+            var b = new Button { Content = label };
+            b.Click += (_, _) =>
+            {
+                if (answered) return;
+                answered = true;
+                try { action(); }
+                finally { b.FindAncestorOfType<NotificationCard>()?.Close(); }
+            };
+            return b;
+        }
         if (toast.OnSecondaryAction is not null && !string.IsNullOrEmpty(toast.SecondaryActionLabel))
-        {
-            var b = new Button { Content = toast.SecondaryActionLabel };
-            b.Click += (_, _) => toast.OnSecondaryAction();
-            buttons.Children.Add(b);
-        }
+            buttons.Children.Add(ActionButton(toast.SecondaryActionLabel, toast.OnSecondaryAction));
         if (toast.OnAction is not null && !string.IsNullOrEmpty(toast.ActionLabel))
-        {
-            var b = new Button { Content = toast.ActionLabel };
-            b.Click += (_, _) => toast.OnAction();
-            buttons.Children.Add(b);
-        }
+            buttons.Children.Add(ActionButton(toast.ActionLabel, toast.OnAction));
         if (buttons.Children.Count > 0) stack.Children.Add(buttons);
         return stack;
     }
